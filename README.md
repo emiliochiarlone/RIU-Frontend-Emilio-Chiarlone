@@ -9,6 +9,7 @@ Son prioridad los altos estándares de calidad de código en su estructura y tes
 ## Guía de instalación del proyecto
 1. git clone https://github.com/emiliochiarlone/RIU-Frontend-Emilio-Chiarlone.git
 2. cd RIU-Frontend-Emilio-Chiarlone
+3. cd superhero-app
 3. npm install -g @angular/cli (en caso de no tener instalado Angular)
 4. npm install
 5. ng serve
