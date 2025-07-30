@@ -4,6 +4,11 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
+
+/**
+ * Service to format the paginator labels and messages in spanish.
+ */
+
 export class PaginatorFormatterService {
 
   constructor(
