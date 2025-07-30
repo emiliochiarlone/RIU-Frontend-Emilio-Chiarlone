@@ -6,6 +6,14 @@ SPA desarrollada en Angular 19 (última versión LTS) que permite realizar un CR
 Sin backend para enviar/recibir datos, todo se guarda en memoria a través de HeroesService.
 Son prioridad los altos estándares de calidad de código en su estructura y testing siguiendo las mejores prácticas que conozco y he utilizado. 
 
+## Tecnologias utilizadas
+1. Angular 19 - Framework frontend
+2. TypeScript - Lenguaje
+3. Angular Material - UI Components
+4. Jasmine / Karma - Unit testing
+5. Docker - Container
+6. Nginx - Servidor web
+
 ## Guía de instalación del proyecto
 1. git clone https://github.com/emiliochiarlone/RIU-Frontend-Emilio-Chiarlone.git
 2. cd RIU-Frontend-Emilio-Chiarlone
@@ -14,6 +22,13 @@ Son prioridad los altos estándares de calidad de código en su estructura y tes
 4. npm install
 5. ng serve
 
+## Docker - multi-stage build (Nginx)
+**Requisitos:** Docker Desktop instalado y ejecutándose.
+1. npm run docker:build
+2. npm run docker:run
+
 ## Otros comandos útiles
 1. Tests unitarios: ng test
 2. Build: ng build (resultado en /dist)
+
+**Desarrollado por:** Emilio Chiarlone  

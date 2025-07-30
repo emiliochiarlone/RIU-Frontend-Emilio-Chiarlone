@@ -1,0 +1,7 @@
+version: "3.8"
+services:
+  superhero-app:
+    build: .
+    ports:
+      - "4200:80"
+    container_name: superhero-frontend
