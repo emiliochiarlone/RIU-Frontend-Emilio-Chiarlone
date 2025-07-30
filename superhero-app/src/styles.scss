@@ -1,1 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+html,
+body {
+   height: 100%;
+  background: linear-gradient(135deg, var(--app-blue), var(--app-blue));
+  font-family: Poppins, sans-serif;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+:root{
+  --main: #083486;
+  --secondary: #253699;
+  --action:rgb(232 122 33);
+  --background-white: #ebebeb;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@300;400&display=swap');
