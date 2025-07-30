@@ -53,6 +53,19 @@ export class HeroService {
     return of([...this._heroes]);
   }
 
+  getById(id: number): Observable<Hero> {
+    const hero = this._heroes.find((h) => h.id === id);
+    if (!hero) {
+      return throwError(
+        () => ({
+          code: ErrorCodes.HERO_NOT_FOUND,
+          message: 'No se encontro el héroe con el Id proporcionado.',
+        })
+      );
+    }
+    return of(hero);
+  }
+
   getAllPaginated(page: number, pageSize: number): Observable<Hero[]> {
     const start = (page - 1) * pageSize;
     const end = start + pageSize;

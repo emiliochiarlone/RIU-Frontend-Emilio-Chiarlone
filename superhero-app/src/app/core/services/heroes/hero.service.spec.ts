@@ -43,6 +43,16 @@ describe('HeroService', () => {
       });
     });
 
+    it ('should return a hero by id', (done) => {
+      service.getAll().subscribe((heroes: Hero[]) => {
+        const heroId = heroes[0].id;
+        service.getById(heroId).subscribe((hero: Hero) => {
+          expect(hero.id).toBe(heroId);
+          done();
+        });
+      });
+    });
+
     it('should create a hero', (done) => {
       const newHero = new Hero('NewName');
       service.create(newHero).subscribe((createdHero: Hero) => {
@@ -150,6 +160,19 @@ describe('HeroService', () => {
       service.getAllPaginated(999, 5).subscribe((heroes: Hero[]) => {
         expect(heroes.length).toBe(0);
         done();
+      });
+    });
+
+    it('should return not found error for invalid hero ID', (done) => {
+      service.getById(999).subscribe({
+        next: () => {
+          fail(ErrorCodes.HERO_NOT_FOUND + ' was expected');
+          done();
+        },
+        error: (error) => {
+          expect(error.code).toBe(ErrorCodes.HERO_NOT_FOUND);
+          done();
+        },
       });
     });
   });
