@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { MaterialModule } from '../../material/material.module';
 
 @Component({
@@ -6,7 +6,8 @@ import { MaterialModule } from '../../material/material.module';
   imports: [MaterialModule],
   templateUrl: './loading-spinner.component.html',
   styleUrl: './loading-spinner.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None
 })
 export class LoadingSpinnerComponent {
 
