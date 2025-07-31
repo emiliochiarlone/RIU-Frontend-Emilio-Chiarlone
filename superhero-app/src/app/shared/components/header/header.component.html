@@ -1,0 +1,37 @@
+<mat-toolbar>
+  <a class="logo-button" (click)="onLogoClick()" routerlink="/">
+    <img
+      src="assets/img/hero_logo_white.png"
+      class="header-logo"
+      alt="Logo"
+      aria-label="header-logo"
+    />{{ title }}
+  </a>
+  <div class="right-links-container">
+    <a
+      class="right-link"
+      [href]="githubUrl"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="GitHub Icon"
+    >
+      <img src="assets/img/github.png" alt="GitHub Icon" class="link-icon" />
+      GitHub</a
+    >
+
+    <a
+      class="right-link"
+      [href]="linkedinUrl"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <img
+        src="assets/img/linkedin.png"
+        alt="LinkedIn Icon"
+        class="link-icon"
+      aria-label="LinkedIn Icon"
+      />
+      LinkedIn</a
+    >
+  </div>
+</mat-toolbar>
