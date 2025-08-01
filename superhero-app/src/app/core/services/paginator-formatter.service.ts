@@ -32,7 +32,7 @@ export class PaginatorFormatterService {
           pageCount--;
         }
 
-        return `${page} ${of} ${pageCount}`;
+        return length > 0 ? `${page+1} ${of} ${pageCount +1} (${length} elementos)` : '';
       };
     }
   }
