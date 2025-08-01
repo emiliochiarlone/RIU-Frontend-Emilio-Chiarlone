@@ -1,0 +1,10 @@
+.main-layout-container{
+  margin-top: 2rem; //to avoid the header overlap
+  padding: 1rem;
+  @media only screen and (min-width: 769px) {
+    padding: 1.5rem;
+  }
+  @media only screen and (min-width: 1200px) {
+    padding: 2.5rem;
+  }
+}
