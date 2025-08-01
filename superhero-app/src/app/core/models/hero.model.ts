@@ -1,12 +1,11 @@
 export class Hero {
   static currentId = 1;
 
+  private _id: number;
   constructor(
     private _name: string,
-    private _id?: number
   ) {
-    this._id = _id !== undefined ? _id : Hero.currentId++;
-    this._name = _name;
+    this._id = Hero.currentId++;
   }
 
   set name(newName: string) {
@@ -19,6 +18,10 @@ export class Hero {
 
   get id(): number {
     return this._id || 0;
+  }
+
+  set id(newId: number) {
+    this._id = newId;
   }
 
   toString(): string {
