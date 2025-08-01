@@ -20,4 +20,11 @@ describe('HeroFormComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should set creation mode on ngOnInit when no id', () => {
+    spyOn(component.route.snapshot.paramMap, 'get').and.returnValue(null);
+    component.ngOnInit();
+    expect(component.isCreationMode).toBeTrue();
+  });
+
 });

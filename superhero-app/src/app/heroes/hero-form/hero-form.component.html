@@ -1,1 +1,44 @@
-<p>hero-form works!</p>
+<h2 class="form-title">
+  {{ isCreationMode ? "Crear héroe" : "Editar héroe" }}
+</h2>
+<form [formGroup]="heroForm" (ngSubmit)="onSubmit()" class="hero-form">
+  <div class="fields-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="name" required appUppercase />
+      @if (heroForm.get('name')?.hasError('required')) {
+      <mat-error> El nombre es requerido. </mat-error>
+      } @else if (heroForm.get('name')?.hasError('minlength')) {
+      <mat-error> El nombre debe tener al menos 2 caracteres. </mat-error>
+      } @else if (heroForm.get('name')?.hasError('maxlength')) {
+      <mat-error> El nombre no puede excedeer los 30 caracteres. </mat-error>
+      } @else if (heroForm.get('name')?.hasError('pattern')) {
+      <mat-error>
+        El nombre solo puede contener letras, numeros y espacios.
+      </mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <div class="buttons-container">
+      <button
+      mat-button
+      color="primary"
+      type="submit"
+      class="submit-button"
+      [disabled]="heroForm.invalid"
+      [attr.aria-label]="isCreationMode ? 'create hero' : 'edit hero'"
+    >
+      {{ isCreationMode ? "Crear" : "Actualizar" }}
+    </button>
+    <button mat-button type="button" class="cancel-button" aria-label="cancel"
+      (click)="onCancel()"
+    >
+      Cancelar
+    </button>
+
+  </div>
+</form>
+@if (loading()) {
+  <app-loading-spinner></app-loading-spinner>
+}
