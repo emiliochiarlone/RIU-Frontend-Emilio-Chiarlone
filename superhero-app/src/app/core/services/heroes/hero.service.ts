@@ -1,14 +1,17 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { mockedHeroNames } from '../../models/mockedHeroes';
 import { Hero } from '@core/models/hero.model';
-import { Observable, of, throwError } from 'rxjs';
+import { delay, Observable, of, throwError, finalize, map } from 'rxjs';
 import { ErrorCodes } from '@core/utils/errorcodes';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HeroService {
   private _heroes: Hero[] = [];
+  private http = inject(HttpClient);
+  apiUrl = 'https://jsonplaceholder.typicode.com/users';
 
   constructor() {
     this.fillWithMockHeroes();
@@ -19,89 +22,100 @@ export class HeroService {
     return [...this._heroes];
   }
 
-  create(hero: Hero): Observable<Hero> {
-    if (this.idAlreadyExists(hero.id)) {
-      return throwError(() => ({
-        code: ErrorCodes.DUPLICATE_ID,
-        message: 'Ya existe un héroe con este ID',
-      }));
-    } else if (this.nameAlreadyExists(hero.name)) {
+  create(heroName: string): Observable<Hero> {
+    if (this.nameAlreadyExists(heroName)) {
       return throwError(() => ({
         code: ErrorCodes.DUPLICATE_NAME,
         message: 'Ya existe un héro con este nombre',
       }));
     }
-    this._heroes.push(hero);
-    return of(hero);
+
+    this._heroes.push(new Hero(heroName));
+    const heroCopy = new Hero(heroName);
+    heroCopy.id = this._heroes[this._heroes.length - 1].id;
+    return this.http.post<Hero>(this.apiUrl, heroCopy).pipe(
+      finalize(() => {
+        return of(heroCopy);
+      })
+    );
   }
 
   delete(id: number): Observable<number> {
     const index = this._heroes.findIndex((h) => h.id === id);
     if (index === -1) {
-      return throwError(
-        () => ({
-          code: ErrorCodes.HERO_NOT_FOUND,
-          message: 'No se encontro el héroe con el Id proporcionado.',
-        })
-      );
+      return throwError(() => ({
+        code: ErrorCodes.HERO_NOT_FOUND,
+        message: 'No se encontro el héroe con el Id proporcionado.',
+      }));
     }
     this._heroes.splice(index, 1);
-    return of(id);
-  }
-
-  getAll(): Observable<Hero[]> {
-    return of([...this._heroes]);
+    return this.http.delete<number>(`${this.apiUrl}/${id}`).pipe(
+      finalize(() => {
+        return of(id);
+      })
+    );
   }
 
   getById(id: number): Observable<Hero> {
     const hero = this._heroes.find((h) => h.id === id);
     if (!hero) {
-      return throwError(
-        () => ({
-          code: ErrorCodes.HERO_NOT_FOUND,
-          message: 'No se encontro el héroe con el Id proporcionado.',
-        })
-      );
+      return throwError(() => ({
+        code: ErrorCodes.HERO_NOT_FOUND,
+        message: 'No se encontro el héroe con el Id proporcionado.',
+      }));
     }
-    return of(hero);
+    const heroCopy = new Hero(hero.name);
+    heroCopy.id = hero.id;
+
+    return this.http.get<Hero>(`${this.apiUrl}/${id}`).pipe(
+      finalize(() => {
+        return of(heroCopy);
+      })
+    );
   }
 
-  getAllPaginated(page: number, pageSize: number): Observable<Hero[]> {
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize;
-    const paginatedHeroes = this._heroes.slice(start, end);
-    return of(paginatedHeroes);
+  getAll(): Observable<Hero[]> {
+    return this.http
+      .get<Hero[]>(this.apiUrl)
+      .pipe(map(() => [...this._heroes]));
   }
 
   findByName(name: string): Observable<Hero[]> {
     if (!name) {
-      return of([...this._heroes]);
+      return of([...this._heroes].sort((a, b) => a.name.localeCompare(b.name)));
     }
+
     let foundHeroes = this._heroes.filter((hero: Hero) =>
       hero.name.toLowerCase().includes(name.toLowerCase())
     );
-    return of(foundHeroes);
+
+    return this.http
+      .get<Hero[]>(this.apiUrl)
+      .pipe(map(() => [...foundHeroes].sort((a, b) => a.name.localeCompare(b.name))));
   }
 
   update(hero: Hero): Observable<Hero> {
     const index = this._heroes.findIndex((h) => h.id === hero.id);
     if (index === -1) {
-      return throwError(
-        () => ({
-          code: ErrorCodes.HERO_NOT_FOUND,
-          message: 'No se encontro el héroe con el Id proporcionado.'
-        })
-      );
+      return throwError(() => ({
+        code: ErrorCodes.HERO_NOT_FOUND,
+        message: 'No se encontro el héroe con el Id proorcionado.',
+      }));
     } else {
       if (this.nameAlreadyExists(hero.name)) {
         return throwError(() => ({
           code: ErrorCodes.DUPLICATE_NAME,
-          message: 'Ya existe un héroe con este nombre',
+          message: 'Ya existe un hEroe con este nombre',
         }));
       }
     }
     this._heroes[index] = hero;
-    return of(hero);
+    const heroCopy = new Hero(hero.name);
+    heroCopy.id = hero.id;
+
+    return this.http.put<Hero>(`${this.apiUrl}/${hero.id}`, heroCopy).pipe(
+      map(() => heroCopy)
+    );
   }
 
   resetToInitialState(): void {
@@ -121,5 +135,4 @@ export class HeroService {
   get heroes(): Hero[] {
     return this._heroes;
   }
-
 }

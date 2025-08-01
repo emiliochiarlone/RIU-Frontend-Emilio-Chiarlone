@@ -1,19 +1,25 @@
 import { TestBed } from '@angular/core/testing';
-
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { HeroService } from './hero.service';
 import { Hero } from '@core/models/hero.model';
 import { ErrorCodes } from '@core/utils/errorcodes';
 
 describe('HeroService', () => {
   let service: HeroService;
+  let httpMock: HttpTestingController;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [HeroService],
+      imports: [provideHttpClientTesting()],
+    });
     service = TestBed.inject(HeroService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
     service.resetToInitialState();
+    httpMock.verify();
   });
 
   describe('service creation', () => {
@@ -43,7 +49,7 @@ describe('HeroService', () => {
       });
     });
 
-    it ('should return a hero by id', (done) => {
+    it('should return a hero by id', (done) => {
       service.getAll().subscribe((heroes: Hero[]) => {
         const heroId = heroes[0].id;
         service.getById(heroId).subscribe((hero: Hero) => {
@@ -54,13 +60,12 @@ describe('HeroService', () => {
     });
 
     it('should create a hero', (done) => {
-      const newHero = new Hero('NewName');
-      service.create(newHero).subscribe((createdHero: Hero) => {
+      service.create('NewName').subscribe((createdHero: Hero) => {
         service.getAll().subscribe((heroes: Hero[]) => {
           expect(heroes).toContain(
             jasmine.objectContaining({
-              id: newHero.id,
-              name: newHero.name,
+              id: createdHero.id,
+              name: createdHero.name,
             })
           );
           done();
@@ -79,7 +84,8 @@ describe('HeroService', () => {
 
     it('should update a hero', (done) => {
       service.getAll().subscribe((heroes: Hero[]) => {
-        const updatedHero = new Hero('Updated Hero', heroes[0].id);
+        const updatedHero = heroes[0];
+        updatedHero.name = 'Updated Name';
         service.update(updatedHero).subscribe((hero: Hero) => {
           expect(hero).toEqual(updatedHero);
           done();
@@ -89,27 +95,9 @@ describe('HeroService', () => {
   });
 
   describe('error handling', () => {
-    it('Should handle duplicate ID error', (done) => {
-      service.getAll().subscribe((heroes: Hero[]) => {
-        const duplicatedIdHero = new Hero('Duplicated Hero', heroes[0].id);
-
-        service.create(duplicatedIdHero).subscribe({
-          next: () => {
-            fail(ErrorCodes.DUPLICATE_ID + ' was expected');
-            done();
-          },
-          error: (error) => {
-            expect(error.code).toBe(ErrorCodes.DUPLICATE_ID);
-            done();
-          },
-        });
-      });
-    });
-
     it('should handle duplicate name error', (done) => {
       service.getAll().subscribe((heroes: Hero[]) => {
-        const duplicatedNameHero = new Hero(heroes[0].name);
-        service.create(duplicatedNameHero).subscribe({
+        service.create(heroes[0].name).subscribe({
           next: () => {
             fail(ErrorCodes.DUPLICATE_NAME + ' was expected');
             done();
@@ -136,7 +124,7 @@ describe('HeroService', () => {
     });
 
     it('should handle hero not found error on update', (done) => {
-      const nonExistentHero = new Hero('non existing hero', 999);
+      const nonExistentHero = new Hero('non existing hero');
       service.update(nonExistentHero).subscribe({
         next: () => {
           fail(ErrorCodes.HERO_NOT_FOUND + ' was expected');
@@ -156,13 +144,6 @@ describe('HeroService', () => {
       });
     });
 
-    it('should return empty array for out of range page', (done) => {
-      service.getAllPaginated(999, 5).subscribe((heroes: Hero[]) => {
-        expect(heroes.length).toBe(0);
-        done();
-      });
-    });
-
     it('should return not found error for invalid hero ID', (done) => {
       service.getById(999).subscribe({
         next: () => {
@@ -173,17 +154,6 @@ describe('HeroService', () => {
           expect(error.code).toBe(ErrorCodes.HERO_NOT_FOUND);
           done();
         },
-      });
-    });
-  });
-
-  describe('pagination', () => {
-    it('should return paginated heroes', (done) => {
-      service.getAll().subscribe((heroes: Hero[]) => {
-        service.getAllPaginated(1, 5).subscribe((paginatedHeroes: Hero[]) => {
-          expect(paginatedHeroes.length).toBe(heroes.splice(0, 5).length);
-          done();
-        });
       });
     });
   });
@@ -211,23 +181,22 @@ describe('HeroService', () => {
 
   describe('utility methods', () => {
     it('should check hero Id exists', () => {
-      const hero = new Hero('New hero');
-      service.create(hero).subscribe();
-
-      const idExists = service.idAlreadyExists(hero.id);
-      expect(idExists).toBeTrue();
+      service.create('New hero').subscribe((hero: Hero) => {
+        const idExists = service.idAlreadyExists(hero.id);
+        expect(idExists).toBeTrue();
+      });
     });
 
-    it ('should identify non existing Id', () => {
+    it('should identify non existing Id', () => {
       const result = service.idAlreadyExists(999);
       expect(result).toBe(false);
     });
 
     it('should check if hero name exists', () => {
-      const hero = new Hero('new hero');
-      service.create(hero).subscribe();
+      const newHeroName = 'Unique Hero';
+      service.create(newHeroName).subscribe();
 
-      const exists = service.nameAlreadyExists(hero.name);
+      const exists = service.nameAlreadyExists(newHeroName);
       expect(exists).toBeTrue();
     });
 
