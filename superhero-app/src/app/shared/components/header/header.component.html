@@ -1,12 +1,20 @@
 <mat-toolbar>
-  <a class="logo-button" (click)="onLogoClick()" routerlink="/">
-    <img
-      src="assets/img/hero_logo_white.png"
-      class="header-logo"
-      alt="Logo"
-      aria-label="header-logo"
-    />{{ title }}
-  </a>
+  <div class="breadcrumbs-container">
+    <a class="logo-button" (click)="onLogoClick()" routerlink="/">
+      <img
+        src="assets/img/hero_logo_white.png"
+        class="header-logo"
+        alt="Logo"
+        aria-label="app logo"
+      />{{ title }}
+    </a>
+    @if (currentRouteTitle().length > 0) {
+    <mat-icon class="breadcrumb-icon" aria-label="breadcrumb icon"
+      >chevron_right</mat-icon
+    >
+    <span class="route-name"> {{ currentRouteTitle() }} </span>
+    }
+  </div>
   <div class="right-links-container">
     <a
       class="right-link"
@@ -16,8 +24,7 @@
       aria-label="GitHub Icon"
     >
       <img src="assets/img/github.png" alt="GitHub Icon" class="link-icon" />
-      GitHub</a
-    >
+    </a>
 
     <a
       class="right-link"
@@ -29,9 +36,8 @@
         src="assets/img/linkedin.png"
         alt="LinkedIn Icon"
         class="link-icon"
-      aria-label="LinkedIn Icon"
+        aria-label="LinkedIn Icon"
       />
-      LinkedIn</a
-    >
+    </a>
   </div>
 </mat-toolbar>
