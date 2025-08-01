@@ -31,23 +31,10 @@ Son prioridad los altos estándares de calidad de código en su estructura y tes
 1. Tests unitarios: ng test
 2. Build: ng build (resultado en /dist)
 
-## Aclaraciones
-1. Los tests no solicitados en las rúbricas fueron obviados.
-2. Hay métodos y utilidades que en un proyecto real deben estar en un servicio/pipe aparte pero por razones de tiempo y complejidad de la app fue evitado (por ejemplo, mensajes snackbar encapsulado en MessageService, capitalizeFirstLetter en pipe/servicio de utilidad, almacenamiento en localstorage encapsulado en servicio, entre otros).
-3. SCSS Mobile First anidado y ordenado alfabéticamente.
-4. Las solicitudes HTTP están llamando a una API mock para que el interceptor las reciba y así gestionar el spinner de carga.
-
-superhero-app/
-├── 📁 src/
-│   ├── 📁 app/
-│   │   ├── 📁 core/          # Services, Models, Interceptors, Utils
-│   │   ├── 📁 heroes/        # Feature: Hero List + Hero Form (CRUD)
-│   │   ├── 📁 shared/        # Componentes reutilizables
-│   │   ├── app.component.
-│   │   ├── app.config.ts
-│   │   └── app.routes.ts
-│   │   
-│   ├── 📁 assets/            # Imágenes
+## Notas del desarrollador
+1. Hay métodos y utilidades que en un proyecto real deben estar en un servicio/pipe aparte pero por razones de tiempo y complejidad de la app fue evitado (por ejemplo, mensajes snackbar encapsulado en MessageService, capitalizeFirstLetter en pipe/servicio de utilidad, almacenamiento en localstorage encapsulado en servicio, entre otros).
+2. SCSS Mobile First anidado y ordenado alfabéticamente.
+3. Las solicitudes HTTP están llamando a una API mock para que el interceptor las reciba y así gestionar el spinner de carga.
 
 
 **Desarrollado por:** Emilio Chiarlone  
