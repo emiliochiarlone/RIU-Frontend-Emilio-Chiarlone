@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { mockedHeroNames } from '../../models/mockedHeroes';
 import { Hero } from '@core/models/hero.model';
-import { delay, Observable, of, throwError, finalize, map } from 'rxjs';
+import { delay, Observable, of, throwError, map } from 'rxjs';
 import { ErrorCodes } from '@core/utils/errorcodes';
 import { HttpClient } from '@angular/common/http';
 
@@ -34,8 +34,8 @@ export class HeroService {
     const heroCopy = new Hero(heroName);
     heroCopy.id = this._heroes[this._heroes.length - 1].id;
     return this.http.post<Hero>(this.apiUrl, heroCopy).pipe(
-      finalize(() => {
-        return of(heroCopy);
+      map(() => {
+        return heroCopy;
       })
     );
   }
@@ -50,8 +50,8 @@ export class HeroService {
     }
     this._heroes.splice(index, 1);
     return this.http.delete<number>(`${this.apiUrl}/${id}`).pipe(
-      finalize(() => {
-        return of(id);
+      map(() => {
+        return id;
       })
     );
   }
@@ -68,8 +68,8 @@ export class HeroService {
     heroCopy.id = hero.id;
 
     return this.http.get<Hero>(`${this.apiUrl}/${id}`).pipe(
-      finalize(() => {
-        return of(heroCopy);
+      map(() => {
+        return heroCopy;
       })
     );
   }
@@ -91,7 +91,9 @@ export class HeroService {
 
     return this.http
       .get<Hero[]>(this.apiUrl)
-      .pipe(map(() => [...foundHeroes].sort((a, b) => a.name.localeCompare(b.name))));
+      .pipe(
+        map(() => [...foundHeroes].sort((a, b) => a.name.localeCompare(b.name)))
+      );
   }
 
   update(hero: Hero): Observable<Hero> {
@@ -101,21 +103,27 @@ export class HeroService {
         code: ErrorCodes.HERO_NOT_FOUND,
         message: 'No se encontro el héroe con el Id proorcionado.',
       }));
-    } else {
-      if (this.nameAlreadyExists(hero.name)) {
-        return throwError(() => ({
-          code: ErrorCodes.DUPLICATE_NAME,
-          message: 'Ya existe un hEroe con este nombre',
-        }));
-      }
     }
+
+    const existingHeroName = this._heroes.find(
+      (h) =>
+        h.name.toLowerCase() === hero.name.toLowerCase() &&
+        h.id !== hero.id
+    );
+
+    if (existingHeroName) {
+      return throwError(() => ({
+        code: ErrorCodes.DUPLICATE_NAME,
+        message: 'Ya existe un héroe con este nombre',
+      }));
+    }
+
     this._heroes[index] = hero;
     const heroCopy = new Hero(hero.name);
     heroCopy.id = hero.id;
 
-    return this.http.put<Hero>(`${this.apiUrl}/${hero.id}`, heroCopy).pipe(
-      map(() => heroCopy)
-    );
+    return this.http.put<Hero>(`${this.apiUrl}/${hero.id}`, heroCopy)
+      .pipe(map(() => heroCopy));
   }
 
   resetToInitialState(): void {
