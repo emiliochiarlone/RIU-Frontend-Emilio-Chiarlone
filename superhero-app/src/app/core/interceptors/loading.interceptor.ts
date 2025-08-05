@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   HttpInterceptor,
   HttpRequest,
@@ -12,20 +12,19 @@ import { LoadingService } from '../services/loading.service';
 
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
-  constructor(private loadingService: LoadingService) {}
+   private loadingService = inject(LoadingService);
+  private activeRequests = 0;
 
-  intercept(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-    
+  constructor() {}
+
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     this.loadingService.startLoading();
 
-
-    return next
-      .handle(req)
-      .pipe(
-        delay(1000), 
-        finalize(() => this.loadingService.stopLoading()));
+    return next.handle(req).pipe(
+      delay(500), 
+      finalize(() => {
+        this.loadingService.stopLoading();
+      })
+    );
   }
 }
