@@ -13,7 +13,7 @@ Son prioridad los altos estándares de calidad de código en su estructura y tes
 4. Jasmine / Karma - Unit testing
 5. Docker - Container
 6. Nginx - Servidor web
-7. [NgRx SignalStore] (https://ngrx.io/guide/signals/signal-store) - State management
+7. [NgRx SignalStore](https://ngrx.io/guide/signals/signal-store) - State management
 
 ## Guía de instalación del proyecto
 1. git clone https://github.com/emiliochiarlone/RIU-Frontend-Emilio-Chiarlone.git
