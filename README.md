@@ -1,10 +1,6 @@
 # RIU-Frontend-Emilio-Chiarlone
 Challenge Técnico para la posición Angular SR solicitada por RIU.
 
-1) Implementación tradicional (Datos de héroes en hero.service) - branch Main
-2) Implementación con signalStore (hero.store con NgRx) - branch feature/signalStore
-Nota: La versión definitiva (que incluye los unit test) es la implementación con SignalStore. Es la que tiene pulidos los detalles. La implementación tradicional es solo una muestra de la evolución de la app.
-
 ## Descripción
 SPA desarrollada en Angular 19 (última versión LTS) que permite realizar un CRUD completo sobre una lista de superhéroes, incluyendo búsqueda por nombre, edición, eliminación, y paginación. 
 Sin backend para enviar/recibir datos, todo se guarda en memoria a través de HeroesService.
