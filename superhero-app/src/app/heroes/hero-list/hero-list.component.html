@@ -24,7 +24,7 @@
     </button>
   </div>
 
-  @defer (when canShowTable) {
+  @defer {
 
     @if (heroDataSource.data.length > 0) {
     <span class="hero-count">{{ getHeroCountMessage() }}</span>
@@ -66,10 +66,10 @@
     }
   }
 
-  @placeholder { Aqui apareceran los héroes una vez que se carguen. }
-  @error { No se encontraron héroes. Por favor, intente más tarde. }
+  @placeholder { Aquí se mostrará la tabla de heroes una vez cargada. }
+  @error { Error al cargar la tabla. }
 
-  @if (isLoading() && !showSearchSpinner()) {
+  @if ((storeLoading() || globalLoading()) && !showSearchSpinner()) {
     <app-loading-spinner></app-loading-spinner>
   }
 

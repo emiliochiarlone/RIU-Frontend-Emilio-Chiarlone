@@ -1,16 +1,14 @@
 import { CommonModule } from '@angular/common';
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   inject,
-  Signal,
   signal,
   ViewChild,
 } from '@angular/core';
 import { Hero } from '@core/models/hero.model';
-import { HeroService } from '@core/services/heroes/hero.service';
-import { LoadingService } from '@core/services/loading.service';
 import { PaginatorFormatterService } from '@core/services/paginator-formatter.service';
 import { MaterialModule } from '@shared/material/material.module';
 import { MatTableDataSource } from '@angular/material/table';
@@ -22,13 +20,17 @@ import {
   delay,
   distinctUntilChanged,
   finalize,
+  of,
   Subscription,
+  switchMap,
   tap,
 } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HeroStore } from '@core/services/heroes/hero.store';
+import { LoadingService } from '@core/services/loading.service';
 @Component({
   selector: 'app-hero-list',
   imports: [
@@ -39,34 +41,47 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
   ],
   templateUrl: './hero-list.component.html',
   styleUrl: './hero-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeroListComponent {
-  heroService = inject(HeroService);
-  loadingService = inject(LoadingService);
+  heroStore = inject(HeroStore);
   router = inject(Router);
+
   paginatorFormatterService = inject(PaginatorFormatterService);
   dialog = inject(MatDialog);
   snackBar = inject(MatSnackBar);
+  loadingService = inject(LoadingService)
 
-  @ViewChild('heroPaginator') paginator!: MatPaginator;
-
-  heroes = signal<Hero[]>([]);
+  heroes = this.heroStore.filteredHeroes;
+  storeLoading = this.heroStore.isLoading;
+  heroCount = this.heroStore.heroCount;
+  errorMessage = this.heroStore.errorMessage;
+  errorCode = this.heroStore.errorCode;
 
   searchControl: FormControl<string | null> = new FormControl<string>('');
-  showSearchSpinner  = signal<boolean>(false);
+  subscriptions: Subscription[] = [];
+  showSearchSpinner = signal<boolean>(false);
+  globalLoading = this.loadingService.isLoading;
 
-  isLoading = computed(() => this.loadingService.loading());
-  canShowTable = computed(() => !this.isLoading());
 
+  @ViewChild('heroPaginator') paginator!: MatPaginator;
   displayedColumns: string[] = ['id', 'name', 'actions'];
   heroDataSource: MatTableDataSource<Hero> = new MatTableDataSource<Hero>([]);
   defaultPageSize = 5;
-  subscriptions: Subscription[] = [];
 
   constructor() {
     effect(() => {
-      if (this.heroes) {
-        this.setHeroDataSource(this.heroes());
+      if (this.heroes()) {
+        this.setHeroDataSource();
+      }
+    });
+
+    effect(() => {
+      if (this.errorMessage() || this.errorCode()) {
+        this.snackBar.open('Error: ' + this.errorMessage(), 'Cerrar', {
+          duration: 2500,
+        });
+        this.heroStore.clearError();
       }
     });
   }
@@ -78,28 +93,29 @@ export class HeroListComponent {
           debounceTime(500),
           distinctUntilChanged(),
           tap(() => this.showSearchSpinner.set(true)),
-        )
-        .subscribe((value: string | null) => {
-          if (!value || value.trim() === '') {
-            this.executeSearch();
-          } else {
+          switchMap((value: string | null) => {
             this.executeSearchByName(value);
-          }
-        })
+            return of(value).pipe(
+              delay(500),
+              tap(() => this.showSearchSpinner.set(false))
+            );
+          })
+        ).subscribe()
     );
   }
 
   ngAfterViewInit(): void {
-    this.executeSearch();
+    this.executeSearchByName('');
     this.paginatorFormatterService.format(this.paginator);
+    this.setHeroDataSource();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
-  setHeroDataSource(heroes: Hero[]): void {
-    this.heroDataSource.data = heroes;
+  setHeroDataSource(): void {
+    this.heroDataSource.data = this.heroes();
     if (!this.heroDataSource.paginator) {
       this.heroDataSource.paginator = this.paginator;
     }
@@ -110,74 +126,26 @@ export class HeroListComponent {
   }
 
   onDeleteClick(id: number): void {
-    this.dialog
-      .open(ConfirmationDialogComponent, {
-        data: {
-          title: 'Confirmación de eliminación',
-          message: '¿Estás seguro de que deseas eliminar este héroe?',
-          confirmText: 'Eliminar',
-          cancelText: 'Cancelar',
-        },
-      })
-      .afterClosed()
-      .subscribe((confirmed: boolean) => {
-        if (confirmed) {
-          this.heroService.delete(id).subscribe({
-            next: () => {
-              this.snackBar.open('Heroe eliminado correctamente.', 'Cerrar', {
-                duration: 2500,
-              });
-              this.executeSearch();
-            },
-            error: (error) => {
-              this.snackBar.open(
-                'Error al eliminar el heroe: ' + error.message,
-                'Cerrar',
-                {
-                  duration: 2500,
-                }
-              );
-            },
-          });
-        }
-      });
-  }
-
-  executeSearch(): void {
-    this.subscriptions.push(
-      this.heroService
-        .getAll()
-        .pipe(
-          finalize(() => {
-            this.showSearchSpinner.set(false);
-          })
-        )
-        .subscribe((heroes: Hero[]) => {
-          this.heroes.set(heroes);
-          this.heroDataSource.data = heroes;
-        })
-    );
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Confirmar eliminar héroe',
+        message: '¿Estás seguro de que deseas eliminar este héroe?',
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+      },
+    });
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.heroStore.deleteHero(id);
+        this.snackBar.open('Héroe eliminado correctamente', 'Cerrar', {
+          duration: 2500,
+        });
+      }
+    });
   }
 
   executeSearchByName(name: string | null): void {
-    this.subscriptions.push(
-      this.heroService
-        .findByName(name?.trim() || '')
-        .pipe(
-          finalize(() => {
-            this.showSearchSpinner.set(false);
-          })
-        )
-        .subscribe({
-          next: (heroes: Hero[]) => {
-            this.heroes.set(heroes);
-            this.setHeroDataSource(heroes);
-          },
-          error: (error) => {
-            this.snackBar.open('Error al buscar heroes: ' + error.message);
-          },
-        })
-    );
+    this.heroStore.findByName(name || '')
   }
 
   onAddClick(): void {
@@ -198,4 +166,5 @@ export class HeroListComponent {
       ' héroes.'
     );
   }
+
 }
