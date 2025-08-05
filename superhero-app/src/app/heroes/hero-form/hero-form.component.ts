@@ -1,4 +1,4 @@
-import { Component, computed, inject, ViewEncapsulation } from '@angular/core';
+import { Component, computed, effect, inject, ViewEncapsulation } from '@angular/core';
 import { Hero } from '@core/models/hero.model';
 import { MaterialModule } from '@shared/material/material.module';
 import { HeroService } from '@core/services/heroes/hero.service';
@@ -16,6 +16,7 @@ import { UppercaseDirective } from '@shared/directives/uppercase.directive';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
 import { LoadingService } from '@core/services/loading.service';
+import { HeroStore } from '@core/services/heroes/hero.store';
 @Component({
   selector: 'app-hero-form',
   imports: [
@@ -30,20 +31,31 @@ import { LoadingService } from '@core/services/loading.service';
   encapsulation: ViewEncapsulation.None,
 })
 export class HeroFormComponent {
-  heroService = inject(HeroService);
+  heroStore = inject(HeroStore);
   formBuilder = inject(FormBuilder);
   router = inject(Router);
   route = inject(ActivatedRoute);
   dialog = inject(MatDialog);
   snackBar = inject(MatSnackBar);
-  loadingService = inject(LoadingService);
 
-  loading = computed(() => this.loadingService.loading());
+  isLoading = this.heroStore.isLoading;
+  errorMessage = this.heroStore.errorMessage;
+  errorCode = this.heroStore.errorCode;
+
   heroForm!: FormGroup;
   isCreationMode: boolean = true;
   hero: Hero = new Hero('');
 
-  constructor() {}
+  constructor() {
+    effect(() => {
+      if (this.errorMessage() || this.errorCode()) {
+        this.snackBar.open('Error: ' + this.errorMessage(), 'Cerrar', {
+          duration: 2500,
+        });
+        this.heroStore.clearError();
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.setUpForm();
@@ -71,18 +83,12 @@ export class HeroFormComponent {
   }
 
   loadHero(id: number): void {
-    this.heroService.getById(id).subscribe({
-      next: (hero: Hero) => {
-        this.hero = hero;
-        if (this.heroForm) this.heroForm.get('name')?.setValue(this.hero.name);
-      },
-      error: (error) => {
-        this.snackBar.open('Error al cargar hroe: ' + error.message, 'Cerrar', {
-          duration: 2500,
-        });
-        this.router.navigate(['/heroes']);
-      },
-    });
+    this.hero = this.heroStore.getHeroById()(id) || new Hero('');
+    if (this.hero && this.hero.id) {
+      this.heroForm.patchValue({
+        name: this.hero.name,
+      });
+    }
   }
 
   onCancel(): void {
@@ -110,25 +116,14 @@ export class HeroFormComponent {
         .afterClosed()
         .subscribe((confirmed: boolean) => {
           if (confirmed) {
-            this.heroService
-              .create(this.capitalizeWords(this.heroForm.get('name')?.value))
-              .subscribe({
-                next: (hero: Hero) => {
-                  this.router.navigate(['/heroes']);
-                  this.snackBar.open('Héroe creado correctamente.', 'Cerrar', {
-                    duration: 2500,
-                  });
-                },
-                error: (error) => {
-                  this.snackBar.open(
-                    'Error al crear el héroe: ' + error.message,
-                    'Cerrar',
-                    {
-                      duration: 2500,
-                    }
-                  );
-                },
-              });
+            const heroName = this.capitalizeWords(
+              this.heroForm.get('name')?.value
+            );
+            this.heroStore.createHero(heroName);
+            this.router.navigate(['/heroes']);
+            this.snackBar.open('Héroe creado correctamente.', 'Cerrar', {
+              duration: 2500,
+            });
           }
         });
     }
@@ -148,29 +143,15 @@ export class HeroFormComponent {
         .afterClosed()
         .subscribe((confirmed: boolean) => {
           if (confirmed) {
-            this.hero.name = this.capitalizeWords(
+            const capitalizedName = this.capitalizeWords(
               this.heroForm.get('name')?.value
             );
-            this.heroService.update(this.hero).subscribe({
-              next: (hero: Hero) => {
-                this.router.navigate(['/heroes']);
-                this.snackBar.open(
-                  'Héroe actualizado correctamente.',
-                  'Cerrar',
-                  {
-                    duration: 2500,
-                  }
-                );
-              },
-              error: (error) => {
-                this.snackBar.open(
-                  'Error al actualizar el héroe: ' + error.message,
-                  'Cerrar',
-                  {
-                    duration: 2500,
-                  }
-                );
-              },
+            const updatedHero: Hero = new Hero(capitalizedName);
+            updatedHero.id = this.hero.id;
+            this.heroStore.updateHero(updatedHero);
+            this.router.navigate(['/heroes']);
+            this.snackBar.open('Héroe actualizado correctamente', 'Cerrar', {
+              duration: 2500,
             });
           }
         });
