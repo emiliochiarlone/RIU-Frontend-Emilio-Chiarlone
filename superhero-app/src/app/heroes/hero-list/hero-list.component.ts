@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   effect,
   inject,
   signal,
@@ -25,12 +24,12 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HeroStore } from '@core/services/heroes/hero.store';
 import { LoadingService } from '@core/services/loading.service';
+import { DialogService } from '@core/services/dialog.service';
 @Component({
   selector: 'app-hero-list',
   imports: [
@@ -48,7 +47,7 @@ export class HeroListComponent {
   router = inject(Router);
 
   paginatorFormatterService = inject(PaginatorFormatterService);
-  dialog = inject(MatDialog);
+  dialogService = inject(DialogService);
   snackBar = inject(MatSnackBar);
   loadingService = inject(LoadingService)
 
@@ -126,7 +125,7 @@ export class HeroListComponent {
   }
 
   onDeleteClick(id: number): void {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+    const dialogRef = this.dialogService.openDialog(ConfirmationDialogComponent, {
       data: {
         title: 'Confirmar eliminar héroe',
         message: '¿Estás seguro de que deseas eliminar este héroe?',

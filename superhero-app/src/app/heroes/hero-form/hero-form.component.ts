@@ -1,7 +1,6 @@
-import { Component, computed, effect, inject, ViewEncapsulation } from '@angular/core';
+import { Component, effect, inject, ViewEncapsulation } from '@angular/core';
 import { Hero } from '@core/models/hero.model';
 import { MaterialModule } from '@shared/material/material.module';
-import { HeroService } from '@core/services/heroes/hero.service';
 import {
   FormBuilder,
   FormGroup,
@@ -10,13 +9,12 @@ import {
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UppercaseDirective } from '@shared/directives/uppercase.directive';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
-import { LoadingService } from '@core/services/loading.service';
 import { HeroStore } from '@core/services/heroes/hero.store';
+import { DialogService } from '@core/services/dialog.service';
 @Component({
   selector: 'app-hero-form',
   imports: [
@@ -35,7 +33,7 @@ export class HeroFormComponent {
   formBuilder = inject(FormBuilder);
   router = inject(Router);
   route = inject(ActivatedRoute);
-  dialog = inject(MatDialog);
+  dialogService = inject(DialogService);
   snackBar = inject(MatSnackBar);
 
   isLoading = this.heroStore.isLoading;
@@ -104,8 +102,8 @@ export class HeroFormComponent {
 
   onCreationSubmit(): void {
     if (this.heroForm.valid) {
-      this.dialog
-        .open(ConfirmationDialogComponent, {
+      this.dialogService
+        .openDialog(ConfirmationDialogComponent, {
           data: {
             title: 'Crear héroe',
             message: '¿Estas seguro de que quieres crear este héroe?',
@@ -131,8 +129,8 @@ export class HeroFormComponent {
 
   onEditSubmit(): void {
     if (this.heroForm.valid) {
-      this.dialog
-        .open(ConfirmationDialogComponent, {
+      this.dialogService
+        .openDialog(ConfirmationDialogComponent, {
           data: {
             title: 'Actualizar héroe',
             message: '¿Estas seguro de que quieres actualizar este héroe?',

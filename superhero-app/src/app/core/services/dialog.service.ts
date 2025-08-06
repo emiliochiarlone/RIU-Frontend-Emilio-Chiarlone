@@ -12,8 +12,10 @@ export class DialogService {
   ) {
   }
 
-  public openDialog<T>(component:ComponentType<T>): MatDialogRef<T> {
-    return this.dialog.open(component);
+  public openDialog<T>(component:ComponentType<T>, data?: any): MatDialogRef<T> {
+    return this.dialog.open(component, {
+      data
+    });
   }
 
   public closeDialog(): void {

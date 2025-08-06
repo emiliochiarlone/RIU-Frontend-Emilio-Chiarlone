@@ -2,9 +2,9 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from '@shared/components/header/header.component';
 import { CommonModule } from '@angular/common';
-import { MatDialog } from '@angular/material/dialog';
 import { WelcomeComponent } from '@shared/components/welcome/welcome.component';
 import { Subscription } from 'rxjs';
+import { DialogService } from '@core/services/dialog.service';
 
 @Component({
   selector: 'app-root',
@@ -13,19 +13,19 @@ import { Subscription } from 'rxjs';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  dialog = inject(MatDialog);
+  dialogService = inject(DialogService);
   welcomeAlreadyShown = false;
   welcomeDialogSubscription!: Subscription;
 
   ngOnInit(): void {
     this.welcomeAlreadyShown = localStorage.getItem('welcomeShown') === 'true';
-    if (!this.welcomeAlreadyShown) this.showWelcome();
+    if (!this.welcomeAlreadyShown) this.showWelcomeDialog();
   }
 
-  showWelcome(): void {
+  showWelcomeDialog(): void {
     if (!this.welcomeAlreadyShown) {
-      this.dialog
-        .open(WelcomeComponent).afterClosed().subscribe(() => {
+      this.welcomeDialogSubscription = this.dialogService
+        .openDialog(WelcomeComponent).afterClosed().subscribe(() => {
         this.setWelcomeShown();
       });
     }
