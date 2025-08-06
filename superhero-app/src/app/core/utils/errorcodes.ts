@@ -3,3 +3,8 @@ export enum ErrorCodes {
   DUPLICATE_NAME = 'DUPLICATE_NAME',
   HERO_NOT_FOUND = 'HERO_NOT_FOUND',
 }
+
+export interface HeroError {
+  message: string;
+  code: ErrorCodes;
+}
