@@ -1,24 +1,29 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { HeroService } from './hero.service';
+import { HeroHttpService } from './heroHttp.service';
 import { Hero } from '@core/models/hero.model';
 import { ErrorCodes } from '@core/utils/errorcodes';
-
-describe('HeroService', () => {
-  let service: HeroService;
+/**
+ * HeroHttpService Tests were deprecated when the feature/signalStore was released.
+ * In this new version, the HeroHttpService is only used internally by the HeroStore
+ * to simulate http requests.
+ * I decided to keep this file as an example.
+ * the real tests were moved to hero.store.spec.ts
+ */
+describe('HeroHttpService', () => {
+  let service: HeroHttpService;
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [HeroService],
+      providers: [HeroHttpService],
       imports: [provideHttpClientTesting()],
     });
-    service = TestBed.inject(HeroService);
+    service = TestBed.inject(HeroHttpService);
     httpMock = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
-    service.resetToInitialState();
     httpMock.verify();
   });
 
@@ -35,9 +40,10 @@ describe('HeroService', () => {
     });
 
     it('should fill with mock heroes', () => {
-      const heroes = service.fillWithMockHeroes();
-      expect(heroes.length).toBeGreaterThan(0);
-      expect(heroes[0]).toBeInstanceOf(Hero);
+      service.getMockHeroes().subscribe((heroes: Hero[]) => {
+           expect(heroes.length).toBeGreaterThan(0);
+          expect(heroes[0]).toBeInstanceOf(Hero);
+      });
     });
   });
 
@@ -46,16 +52,6 @@ describe('HeroService', () => {
       service.getAll().subscribe((heroes: Hero[]) => {
         expect([...heroes]).toBeInstanceOf(Array);
         done();
-      });
-    });
-
-    it('should return a hero by id', (done) => {
-      service.getAll().subscribe((heroes: Hero[]) => {
-        const heroId = heroes[0].id;
-        service.getById(heroId).subscribe((hero: Hero) => {
-          expect(hero.id).toBe(heroId);
-          done();
-        });
       });
     });
 
@@ -92,6 +88,19 @@ describe('HeroService', () => {
         });
       });
     });
+
+
+    //Test removed when released feature/signalStore but keeping as example
+
+    // it('should return a hero by id', (done) => {
+    //   service.getAll().subscribe((heroes: Hero[]) => {
+    //     const heroId = heroes[0].id;
+    //     service.get(heroId).subscribe((hero: Hero) => {
+    //       expect(hero.id).toBe(heroId);
+    //       done();
+    //     });
+    //   });
+    // });
   });
 
   describe('error handling', () => {
@@ -143,19 +152,6 @@ describe('HeroService', () => {
         done();
       });
     });
-
-    it('should return not found error for invalid hero ID', (done) => {
-      service.getById(999).subscribe({
-        next: () => {
-          fail(ErrorCodes.HERO_NOT_FOUND + ' was expected');
-          done();
-        },
-        error: (error) => {
-          expect(error.code).toBe(ErrorCodes.HERO_NOT_FOUND);
-          done();
-        },
-      });
-    });
   });
 
   describe('find by name', () => {
@@ -180,29 +176,30 @@ describe('HeroService', () => {
   });
 
   describe('utility methods', () => {
-    it('should check hero Id exists', () => {
-      service.create('New hero').subscribe((hero: Hero) => {
-        const idExists = service.idAlreadyExists(hero.id);
-        expect(idExists).toBeTrue();
-      });
-    });
+    //Example tests for utility methods
+    // it('should check hero Id exists', () => {
+    //   service.create('New hero').subscribe((hero: Hero) => {
+    //     const idExists = service.idAlreadyExists(hero.id);
+    //     expect(idExists).toBeTrue();
+    //   });
+    // });
 
-    it('should identify non existing Id', () => {
-      const result = service.idAlreadyExists(999);
-      expect(result).toBe(false);
-    });
+    // it('should identify non existing Id', () => {
+    //   const result = service.idAlreadyExists(999);
+    //   expect(result).toBe(false);
+    // });
 
-    it('should check if hero name exists', () => {
-      const newHeroName = 'Unique Hero';
-      service.create(newHeroName).subscribe();
+    // it('should check if hero name exists', () => {
+    //   const newHeroName = 'Unique Hero';
+    //   service.create(newHeroName).subscribe();
 
-      const exists = service.nameAlreadyExists(newHeroName);
-      expect(exists).toBeTrue();
-    });
+    //   const exists = service.nameAlreadyExists(newHeroName);
+    //   expect(exists).toBeTrue();
+    // });
 
-    it('should identify non existing name', () => {
-      const result = service.nameAlreadyExists('Non existing hero');
-      expect(result).toBe(false);
-    });
+    // it('should identify non existing name', () => {
+    //   const result = service.nameAlreadyExists('Non existing hero');
+    //   expect(result).toBe(false);
+    // });
   });
 });

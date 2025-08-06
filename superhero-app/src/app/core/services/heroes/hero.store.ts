@@ -8,12 +8,12 @@ import {
   withHooks,
 } from '@ngrx/signals';
 import { Hero } from '@core/models/hero.model';
-import { HeroService } from './hero.service';
+import { HeroHttpService } from './heroHttp.service';
 import { HeroState } from './hero.state';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { EMPTY, pipe, switchMap, tap, of } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { ErrorCodes } from '@core/utils/errorcodes';
+import { ErrorCodes, HeroError } from '@core/utils/errorcodes';
 
 const initialState: HeroState = {
   heroes: [],
@@ -41,9 +41,15 @@ export const HeroStore = signalStore(
           hero.name.toLowerCase().includes(store.searchTerm().toLowerCase())
         );
     }),
+    nameAlreadyExists: computed(() => (name: string, heroes: Hero[] = store.heroes()) => {
+      return heroes.some((hero) => hero.name.trim().toLowerCase() === name.trim().toLowerCase());
+    }),
+    idAlreadyExists: computed(() => (id: number, heroes: Hero[] = store.heroes()) => {
+      return heroes.some((hero) => hero.id === id);
+    })
   })),
 
-  withMethods((store, heroService = inject(HeroService)) => ({
+  withMethods((store, heroService = inject(HeroHttpService)) => ({
     getHeroes: rxMethod<void>(
       pipe(
         tap(() =>
@@ -57,7 +63,7 @@ export const HeroStore = signalStore(
           heroService.getAll().pipe(
             tapResponse({
               next: () => patchState(store, { isLoading: false }),
-              error: (error: any) =>
+              error: (error: HeroError) =>
                 patchState(store, {
                   errorMessage: error.message,
                   errorCode: error.code,
@@ -79,7 +85,7 @@ export const HeroStore = signalStore(
           });
         }),
         switchMap((heroName) => {
-          if (heroService.nameAlreadyExists(heroName, store.heroes())) {
+          if (store.nameAlreadyExists()(heroName)) {
             patchState(store, {
               isLoading: false,
               errorMessage: 'El héroe ya existe',
@@ -94,7 +100,7 @@ export const HeroStore = signalStore(
                 patchState(store, { heroes, isLoading: false });
                 return hero;
               },
-              error: (error: any) =>
+              error: (error: HeroError) =>
                 patchState(store, {
                   errorMessage: error.message,
                   errorCode: error.code,
@@ -116,10 +122,10 @@ export const HeroStore = signalStore(
           });
         }),
         switchMap((hero) => {
-          if (heroService.nameAlreadyExists(hero.name, store.heroes())) {
+          if (store.nameAlreadyExists()(hero.name)) {
             patchState(store, {
               isLoading: false,
-              errorMessage: 'El herroe ya existe',
+              errorMessage: 'El héroe ya existe',
               errorCode: ErrorCodes.DUPLICATE_NAME,
             });
             return EMPTY;
@@ -133,7 +139,7 @@ export const HeroStore = signalStore(
                 patchState(store, { heroes, isLoading: false });
                 return updatedHero;
               },
-              error: (error: any) =>
+              error: (error: HeroError) =>
                 patchState(store, {
                   errorMessage: error.message,
                   errorCode: error.code,
@@ -155,7 +161,7 @@ export const HeroStore = signalStore(
           })
         ),
         switchMap((id) => {
-          if (!heroService.idAlreadyExists(id, store.heroes())) {
+          if (!store.idAlreadyExists()(id)) {
             patchState(store, {
               isLoading: false,
               errorMessage: 'Héroe no encontrado',
@@ -169,7 +175,7 @@ export const HeroStore = signalStore(
                 const heroes = store.heroes().filter((h) => h.id !== id);
                 patchState(store, { heroes, isLoading: false });
               },
-              error: (error: any) =>
+              error: (error: HeroError) =>
                 patchState(store, {
                   errorMessage: error.message,
                   errorCode: error.code,
@@ -216,7 +222,7 @@ export const HeroStore = signalStore(
                 patchState(store, { heroes, isLoading: false });
                 return heroes;
               },
-              error: (error: any) =>
+              error: (error: HeroError) =>
                 patchState(store, {
                   errorMessage: error.message,
                   errorCode: error.code,

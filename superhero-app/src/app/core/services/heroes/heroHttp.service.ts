@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 @Injectable({
   providedIn: 'root',
 })
-export class HeroService {
+export class HeroHttpService {
   private http = inject(HttpClient);
   apiUrl = 'https://jsonplaceholder.typicode.com/users';
 
@@ -58,17 +58,6 @@ export class HeroService {
   getMockHeroes(): Observable<Hero[]> {
     return this.http.get<Hero[]>(`${this.apiUrl}`).pipe(
       map(() => mockedHeroNames.map((name: string) => new Hero(name)))
-    );
-  }
-
-
-  idAlreadyExists(id: number, currentHeroes: Hero[]): boolean {
-    return currentHeroes.some((hero: Hero) => hero.id === id);
-  }
-
-  nameAlreadyExists(heroName: string, currentHeroes: Hero[] ): boolean {
-    return currentHeroes.some(
-      (hero: Hero) => hero.name.toLowerCase() === heroName.toLowerCase()
     );
   }
 
