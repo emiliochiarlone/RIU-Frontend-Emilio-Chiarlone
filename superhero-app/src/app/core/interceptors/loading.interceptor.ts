@@ -12,8 +12,7 @@ import { LoadingService } from '../services/loading.service';
 
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
-   private loadingService = inject(LoadingService);
-  private activeRequests = 0;
+  private loadingService = inject(LoadingService);
 
   constructor() {}
 
@@ -21,7 +20,7 @@ export class LoadingInterceptor implements HttpInterceptor {
     this.loadingService.startLoading();
 
     return next.handle(req).pipe(
-      delay(500), 
+      delay(500),
       finalize(() => {
         this.loadingService.stopLoading();
       })
