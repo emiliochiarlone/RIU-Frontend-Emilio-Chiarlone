@@ -30,6 +30,7 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HeroStore } from '@core/services/heroes/hero.store';
 import { LoadingService } from '@core/services/loading.service';
 import { DialogService } from '@core/services/dialog.service';
+import { MessageService } from '@core/services/message.service';
 @Component({
   selector: 'app-hero-list',
   imports: [
@@ -48,8 +49,8 @@ export class HeroListComponent {
 
   paginatorFormatterService = inject(PaginatorFormatterService);
   dialogService = inject(DialogService);
-  snackBar = inject(MatSnackBar);
-  loadingService = inject(LoadingService)
+  messageService = inject(MessageService);
+  loadingService = inject(LoadingService);
 
   heroes = this.heroStore.filteredHeroes;
   storeLoading = this.heroStore.isLoading;
@@ -72,15 +73,6 @@ export class HeroListComponent {
     effect(() => {
       if (this.heroes()) {
         this.setHeroDataSource();
-      }
-    });
-
-    effect(() => {
-      if (this.errorMessage() || this.errorCode()) {
-        this.snackBar.open('Error: ' + this.errorMessage(), 'Cerrar', {
-          duration: 2500,
-        });
-        this.heroStore.clearError();
       }
     });
   }
@@ -113,6 +105,14 @@ export class HeroListComponent {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
+  executeSearchByName(name: string | null): void {
+    this.heroStore.findByName(name || '')
+  }
+
+  onAddClick(): void {
+    this.router.navigate(['/heroes/create']);
+  }
+
   setHeroDataSource(): void {
     this.heroDataSource.data = this.heroes();
     if (!this.heroDataSource.paginator) {
@@ -124,9 +124,9 @@ export class HeroListComponent {
     this.router.navigate(['/heroes/edit', heroId]);
   }
 
-  onDeleteClick(id: number): void {
+  onDeleteClick(heroId: number): void {
     const dialogRef = this.dialogService.openDialog(ConfirmationDialogComponent, {
-      data: {
+      dialogData: {
         title: 'Confirmar eliminar héroe',
         message: '¿Estás seguro de que deseas eliminar este héroe?',
         confirmText: 'Eliminar',
@@ -135,20 +135,10 @@ export class HeroListComponent {
     });
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
-        this.heroStore.deleteHero(id);
-        this.snackBar.open('Héroe eliminado correctamente', 'Cerrar', {
-          duration: 2500,
-        });
+        this.heroStore.deleteHero(heroId);
+        this.messageService.showMessage('Héroe eliminado correctamente');
       }
     });
-  }
-
-  executeSearchByName(name: string | null): void {
-    this.heroStore.findByName(name || '')
-  }
-
-  onAddClick(): void {
-    this.router.navigate(['/heroes/create']);
   }
 
   getHeroCountMessage(): string {
