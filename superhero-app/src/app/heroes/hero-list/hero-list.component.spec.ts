@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HeroListComponent } from './hero-list.component';
-import { HeroService } from '@core/services/heroes/hero.service';
+import { HeroHttpMockService } from '@core/services/heroes/heroHttpMock.service';
 import { of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -29,7 +29,7 @@ describe('HeroListComponent', () => {
     await TestBed.configureTestingModule({
       imports: [HeroListComponent, NoopAnimationsModule],
       providers: [
-        { provide: HeroService, useValue: mockHeroService },
+        { provide: HeroHttpMockService, useValue: mockHeroService },
         { provide: 'LoadingService', useValue: mockLoadingService },
         { provide: 'PaginatorFormatterService', useValue: mockPaginatorFormatterService },
         { provide: 'Router', useValue: mockRouter }
