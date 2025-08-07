@@ -1,4 +1,4 @@
-import { computed, effect, inject } from '@angular/core';
+ import { computed, effect, inject } from '@angular/core';
 import {
   signalStore,
   withState,
@@ -42,18 +42,18 @@ const initialState: HeroState = {
  * @version: 1.0.0
  */
 export const HeroStore = signalStore(
-  { providedIn: 'root', protectedState: true },
+  { providedIn: 'root' },
 
   withState<HeroState>(initialState),
 
   withComputed((store) => ({
-    heroCount: computed(() => store.heroes().length),
-    hasHeroes: computed(() => store.heroes().length > 0),
-    hasError: computed(() => store.errorMessage() && store.errorCode()),
-    getHeroById: computed(() => (id: number) => {
+    heroCount: computed<number>(() => store.heroes().length),
+    hasHeroes: computed<boolean>(() => store.heroes().length > 0),
+    hasError: computed<boolean>(() => store.errorMessage() !== null && store.errorCode() !== null),
+    getHeroById: computed<(id: number) => Hero | null>(() => (id: number) => {
       return store.heroes().find((hero) => hero.id === id) || null;
     }),
-    filteredHeroes: computed(() => {
+    filteredHeroes: computed<Hero[]>(() => {
       return store
         .heroes()
         .filter((hero) =>
@@ -114,7 +114,7 @@ export const HeroStore = signalStore(
           }
           return heroService.create(heroName).pipe(
             tapResponse({
-              next: (hero) => {
+              next: (hero: Hero) => {
                 const heroes = [...store.heroes(), hero];
                 patchState(store, { heroes, isLoading: false });
                 return hero;
