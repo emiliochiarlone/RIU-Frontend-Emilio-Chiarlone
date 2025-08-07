@@ -7,10 +7,10 @@ import { ErrorCodes } from '@core/utils/errorcodes';
  * HeroHttpService Tests were deprecated when the feature/signalStore was released.
  * In this new version, the HeroHttpService is only used internally by the HeroStore
  * to simulate http requests.
- * I decided to keep this file as an example.
+ * I decided to keep this file as an example but disabling tests.
  * the real tests were moved to hero.store.spec.ts
  */
-describe('HeroHttpService', () => {
+xdescribe('HeroHttpMockService', () => {
   let service: HeroHttpMockService;
   let httpMock: HttpTestingController;
 
