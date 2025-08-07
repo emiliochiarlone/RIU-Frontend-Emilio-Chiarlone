@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { HeroHttpService } from './heroHttp.service';
+import { HeroHttpMockService } from './heroHttpMock.service';
 import { Hero } from '@core/models/hero.model';
 import { ErrorCodes } from '@core/utils/errorcodes';
 /**
@@ -11,15 +11,15 @@ import { ErrorCodes } from '@core/utils/errorcodes';
  * the real tests were moved to hero.store.spec.ts
  */
 describe('HeroHttpService', () => {
-  let service: HeroHttpService;
+  let service: HeroHttpMockService;
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [HeroHttpService],
+      providers: [HeroHttpMockService],
       imports: [provideHttpClientTesting()],
     });
-    service = TestBed.inject(HeroHttpService);
+    service = TestBed.inject(HeroHttpMockService);
     httpMock = TestBed.inject(HttpTestingController);
   });
 

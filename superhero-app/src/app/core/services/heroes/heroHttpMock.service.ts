@@ -7,7 +7,8 @@ import { HttpClient } from '@angular/common/http';
 @Injectable({
   providedIn: 'root',
 })
-export class HeroHttpService {
+
+export class HeroHttpMockService {
   private http = inject(HttpClient);
   apiUrl = 'https://jsonplaceholder.typicode.com/users';
 
