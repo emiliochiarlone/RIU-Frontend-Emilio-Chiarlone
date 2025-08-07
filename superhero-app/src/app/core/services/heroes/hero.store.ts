@@ -1,4 +1,4 @@
-import { computed, inject } from '@angular/core';
+import { computed, effect, inject } from '@angular/core';
 import {
   signalStore,
   withState,
@@ -8,12 +8,13 @@ import {
   withHooks,
 } from '@ngrx/signals';
 import { Hero } from '@core/models/hero.model';
-import { HeroHttpService } from './heroHttp.service';
+import { HeroHttpMockService } from './heroHttpMock.service';
 import { HeroState } from './hero.state';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { EMPTY, pipe, switchMap, tap, of } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { ErrorCodes, HeroError } from '@core/utils/errorcodes';
+import { MessageService } from '../message.service';
 
 const initialState: HeroState = {
   heroes: [],
@@ -23,16 +24,34 @@ const initialState: HeroState = {
   searchTerm: '',
 };
 
+/**
+ * @Description Hero Store implementation using NgRx SignalStore.
+ * This store manages the state of heroes, including loading, creating, updating, deleting, and searching heroes.
+ * It provides methods to interct with the HeroHttpService (Http Mock) and handles errors appropriately (ErrorCodes, HeroError).
+ * It also has computed properties for easy access (heroCount, hasHeroes, filteredHeroes, etc).
+ * The store initializes by loading mock heroes using onInit Hook).
+ * Store also uses MessageService to show messages errors automatically.
+ *
+ * @see HeroHttpMockService for the HTTP mock implementation.
+ * @see HeroState for the state interface.
+ * @see ErrorCodes and HeroError for error handling.
+ * @see MessageService for message centralization.
+ *
+ * @author: @emiliochiarlone
+ * @date: 07-08-2025
+ * @version: 1.0.0
+ */
 export const HeroStore = signalStore(
   { providedIn: 'root', protectedState: true },
+
   withState<HeroState>(initialState),
 
-  withComputed((store,) => ({
+  withComputed((store) => ({
     heroCount: computed(() => store.heroes().length),
     hasHeroes: computed(() => store.heroes().length > 0),
     hasError: computed(() => store.errorMessage() && store.errorCode()),
     getHeroById: computed(() => (id: number) => {
-      return store.heroes().find((h) => h.id === id) || null;
+      return store.heroes().find((hero) => hero.id === id) || null;
     }),
     filteredHeroes: computed(() => {
       return store
@@ -41,15 +60,15 @@ export const HeroStore = signalStore(
           hero.name.toLowerCase().includes(store.searchTerm().toLowerCase())
         );
     }),
-    nameAlreadyExists: computed(() => (name: string, heroes: Hero[] = store.heroes()) => {
-      return heroes.some((hero) => hero.name.trim().toLowerCase() === name.trim().toLowerCase());
+    nameAlreadyExists: computed(() => (name: string) => {
+      return store.heroes().some((hero) => hero.name.trim().toLowerCase() === name.trim().toLowerCase());
     }),
-    idAlreadyExists: computed(() => (id: number, heroes: Hero[] = store.heroes()) => {
-      return heroes.some((hero) => hero.id === id);
+    idAlreadyExists: computed(() => (id: number) => {
+      return store.heroes().some((hero) => hero.id === id);
     })
   })),
 
-  withMethods((store, heroService = inject(HeroHttpService)) => ({
+  withMethods((store, heroService = inject(HeroHttpMockService)) => ({
     getHeroes: rxMethod<void>(
       pipe(
         tap(() =>
@@ -247,9 +266,18 @@ export const HeroStore = signalStore(
     },
   })),
 
-  withHooks((store) => ({
+  withHooks((store, messageService = inject(MessageService)) => ({
     onInit: () => {
       store.loadMockHeroes();
     },
+
+    onErrorChange: effect(() => {
+      const error = store.errorMessage();
+      const code = store.errorCode();
+      if (error && code) {
+        messageService.showMessage(error);
+      }
+    }),
   }))
 );
+
