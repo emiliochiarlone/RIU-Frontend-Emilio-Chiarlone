@@ -4,6 +4,13 @@ import { Hero } from '@core/models/hero.model';
 import { Observable, map } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
+/**
+ * @description HeroHttpMockService is a mock http service using httpclient to make the LoadingInterceptor manage the loading
+  In case of the Hero-App were truly making HTTP requests, this architecture helps to divide Heroes logic in two layers:
+    1 - Application State Layer (HeroStore).
+    2 - Http Requests Layer(HeroHttpMockService).
+*/
+
 @Injectable({
   providedIn: 'root',
 })
