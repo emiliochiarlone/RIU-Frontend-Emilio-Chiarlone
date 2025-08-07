@@ -60,7 +60,7 @@ export class HeroFormComponent {
           Validators.required,
           Validators.minLength(2),
           Validators.maxLength(30),
-          Validators.pattern('^[a-zA-Z0-9 ]+$'),
+          Validators.pattern('^[a-zA-ZÀ-ÿ0-9 ]+$'),
         ],
       ],
     });
