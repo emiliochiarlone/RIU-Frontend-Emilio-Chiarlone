@@ -15,6 +15,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
 import { HeroStore } from '@core/services/heroes/hero.store';
 import { DialogService } from '@core/services/dialog.service';
+import { MessageService } from '@core/services/message.service';
 @Component({
   selector: 'app-hero-form',
   imports: [
@@ -34,7 +35,7 @@ export class HeroFormComponent {
   router = inject(Router);
   route = inject(ActivatedRoute);
   dialogService = inject(DialogService);
-  snackBar = inject(MatSnackBar);
+  messageService = inject(MessageService);
 
   isLoading = this.heroStore.isLoading;
   errorMessage = this.heroStore.errorMessage;
@@ -44,16 +45,7 @@ export class HeroFormComponent {
   isCreationMode: boolean = true;
   hero: Hero = new Hero('');
 
-  constructor() {
-    effect(() => {
-      if (this.errorMessage() || this.errorCode()) {
-        this.snackBar.open('Error: ' + this.errorMessage(), 'Cerrar', {
-          duration: 2500,
-        });
-        this.heroStore.clearError();
-      }
-    });
-  }
+  constructor() {}
 
   ngOnInit(): void {
     this.setUpForm();
@@ -119,9 +111,7 @@ export class HeroFormComponent {
             );
             this.heroStore.createHero(heroName);
             this.router.navigate(['/heroes']);
-            this.snackBar.open('Héroe creado correctamente.', 'Cerrar', {
-              duration: 2500,
-            });
+            this.messageService.showMessage('Héroe creado correctamente');
           }
         });
     }
@@ -148,9 +138,7 @@ export class HeroFormComponent {
             updatedHero.id = this.hero.id;
             this.heroStore.updateHero(updatedHero);
             this.router.navigate(['/heroes']);
-            this.snackBar.open('Héroe actualizado correctamente', 'Cerrar', {
-              duration: 2500,
-            });
+            this.messageService.showMessage('Héroe actualizado correctamente');
           }
         });
     }
