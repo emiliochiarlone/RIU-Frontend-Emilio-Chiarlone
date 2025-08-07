@@ -126,7 +126,7 @@ export class HeroListComponent {
 
   onDeleteClick(heroId: number): void {
     const dialogRef = this.dialogService.openDialog(ConfirmationDialogComponent, {
-      dialogData: {
+      data: {
         title: 'Confirmar eliminar héroe',
         message: '¿Estás seguro de que deseas eliminar este héroe?',
         confirmText: 'Eliminar',

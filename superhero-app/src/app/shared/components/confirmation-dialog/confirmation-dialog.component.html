@@ -1,14 +1,25 @@
-<h2 mat-dialog-title>{{ data.title }}</h2>
+@if (data) {
+  <h2 mat-dialog-title>{{ data.title }}</h2>
 
-<mat-dialog-content>
-  <p>{{ data.message }}</p>
-</mat-dialog-content>
+  <mat-dialog-content>
+    <p>{{ data.message }}</p>
+  </mat-dialog-content>
 
-<mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()">
-    {{ data.cancelText || 'Cancelar' }}
-  </button>
-  <button mat-button class="confirm-button" (click)="onConfirm()">
-    {{ data.confirmText || 'Confirmar' }}
-  </button>
-</mat-dialog-actions>
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">
+      {{ data.cancelText || "Cancelar" }}
+    </button>
+    <button mat-button class="confirm-button" (click)="onConfirm()">
+      {{ data.confirmText || "Confirmar" }}
+    </button>
+  </mat-dialog-actions>
+
+} @else {
+  <mat-dialog-content>
+    Error al mostrar contenido.
+
+  </mat-dialog-content>
+   <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cerrar</button>
+   </mat-dialog-actions>
+}

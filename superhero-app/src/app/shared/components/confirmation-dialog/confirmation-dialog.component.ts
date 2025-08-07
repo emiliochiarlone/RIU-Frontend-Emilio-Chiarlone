@@ -3,7 +3,6 @@ import { Component, inject, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MaterialModule } from '@shared/material/material.module';
 
-
 export interface ConfirmationDialogData {
   title: string;
   message: string;
@@ -13,20 +12,22 @@ export interface ConfirmationDialogData {
 
 @Component({
   selector: 'app-confirmation-dialog',
-  imports: [MaterialModule,CommonModule],
+  imports: [MaterialModule, CommonModule],
   templateUrl: './confirmation-dialog.component.html',
-  styleUrl: './confirmation-dialog.component.scss'
+  styleUrl: './confirmation-dialog.component.scss',
 })
-
-
 export class ConfirmationDialogComponent {
-  dialogRef: MatDialogRef<ConfirmationDialogComponent> = inject(MatDialogRef<ConfirmationDialogComponent>);
+  dialogRef: MatDialogRef<ConfirmationDialogComponent> = inject(
+    MatDialogRef<ConfirmationDialogComponent>
+  );
 
   constructor(
-  @Inject(MAT_DIALOG_DATA) public data: ConfirmationDialogData
+    @Inject(MAT_DIALOG_DATA) public data: ConfirmationDialogData | null
   ) {
-    this.data.confirmText = this.data.confirmText || 'Confirmar';
-    this.data.cancelText = this.data.cancelText || 'Cancelar';
+    if (data) {
+      data.confirmText = data.confirmText || 'Confirmar';
+      data.cancelText = data.cancelText || 'Cancelar';
+    }
   }
 
   onConfirm(): void {
