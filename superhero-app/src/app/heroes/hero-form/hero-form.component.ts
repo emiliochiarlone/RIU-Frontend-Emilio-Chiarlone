@@ -1,4 +1,4 @@
-import { Component, effect, inject, ViewEncapsulation } from '@angular/core';
+import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { Hero } from '@core/models/hero.model';
 import { MaterialModule } from '@shared/material/material.module';
 import {
@@ -11,11 +11,18 @@ import { CommonModule } from '@angular/common';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UppercaseDirective } from '@shared/directives/uppercase.directive';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
 import { HeroStore } from '@core/services/heroes/hero.store';
 import { DialogService } from '@core/services/dialog.service';
 import { MessageService } from '@core/services/message.service';
+
+/**
+ * @description HeroFormComponent
+ * Component for creating and editing heroes
+ *
+ * @author Emilio Chiarlone
+ * @date 07-08-2025
+ */
 @Component({
   selector: 'app-hero-form',
   imports: [
@@ -144,7 +151,7 @@ export class HeroFormComponent {
     }
   }
 
-  //this method should be in a pipe or service, but for simplicity it's here
+  //TODO: this method should be in a pipe or service, but for simplicity it's here
   private capitalizeWords(str: string): string {
     if (!str) return '';
 
