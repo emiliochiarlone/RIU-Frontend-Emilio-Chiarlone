@@ -133,12 +133,12 @@ export class HeroListComponent {
         cancelText: 'Cancelar',
       },
     });
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+    this.subscriptions.push(dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
         this.heroStore.deleteHero(heroId);
         this.messageService.showMessage('Héroe eliminado correctamente');
       }
-    });
+    }));
   }
 
   getHeroCountMessage(): string {
