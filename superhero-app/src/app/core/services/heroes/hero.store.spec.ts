@@ -13,20 +13,20 @@ import { MessageService } from '../message.service';
  * Tests the NgRx SignalStore implementation for hero management
  * covering CRUD operations, error handling, and computed properties
  * using Jasmine and Angular TestBed.
- * 
+ *
  * @structure
  * - **Initialization Tests**: Store setup and initial state validation
- * - **Computed Properties**: Reactive computations and getters
- * - **CRUD Operations**: Create, read, update, Delete hero operations
- * - **Utility Methods**: Helper functions and state management
- * - **Error Handling**: Error states and recovery mechanisms
- * 
+ * - **Computed Properties**: Reactive values and getters
+ * - **CRUD Operations**: CRUD operations
+ * - **Error Handling**: Error states and recovery
+ *
  * @author Emilio Chiarlone
  * @date 07-08-2025
  */
 describe('HeroStore', () => {
   let store: InstanceType<typeof HeroStore>;
   let heroHttpService: jasmine.SpyObj<HeroHttpMockService>;
+  let messageService: jasmine.SpyObj<MessageService>;
 
   const mockHeroes = mockedHeroNames.map((name, index) => {
     const hero = new Hero(name);
@@ -51,6 +51,7 @@ describe('HeroStore', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: HeroHttpMockService, useValue: heroServiceSpy },
+        { provide: MessageService, useValue: messageServiceSpy },
         provideHttpClientTesting(),
       ],
     });
@@ -59,10 +60,15 @@ describe('HeroStore', () => {
       HeroHttpMockService
     ) as jasmine.SpyObj<HeroHttpMockService>;
 
+    messageService = TestBed.inject(
+      MessageService
+    ) as jasmine.SpyObj<MessageService>;
+
     heroHttpService.getMockHeroes.and.returnValue(
       of(mockedHeroNames.map((name) => new Hero(name)))
     );
 
+    //Http fake Returns
     heroHttpService.getAll.and.returnValue(of([]));
     heroHttpService.delete.and.returnValue(of(1));
     heroHttpService.findByName.and.returnValue(of([]));
@@ -129,6 +135,7 @@ describe('HeroStore', () => {
     });
   });
   describe('Hero CRUD methods', () => {
+
     describe('createHero method', () => {
       it('should create a new hero successfully', () => {
         const newHeroName = 'newHeroName';
@@ -146,9 +153,17 @@ describe('HeroStore', () => {
         expect(store.isLoading()).toBe(false);
         expect(store.errorCode()).toBe(ErrorCodes.DUPLICATE_NAME);
       });
+
+       it('should ignore empty name', () => {
+        const before = store.heroes().length;
+        store.createHero('   ');
+        expect(store.heroes().length).toBe(before);
+        expect(store.errorCode()).toBeNull();
+      });
     });
 
     describe('updateHero method', () => {
+
       it('should update Hero Name', () => {
         const heroToUpdate: Hero = store.heroes()[0];
 
@@ -165,13 +180,22 @@ describe('HeroStore', () => {
         expect(store.hasError()).toBe(false);
       });
 
-      it('should handle duplicate name on updat', () => {
+      it('should handle duplicate name on update', () => {
         const heroToUpdate = new Hero(store.heroes()[0].name);
-        heroToUpdate.id = store.heroes()[0].id;
+        heroToUpdate.id = store.heroes()[1].id;
 
         store.updateHero(heroToUpdate);
 
         expect(store.errorCode()).toBe(ErrorCodes.DUPLICATE_NAME);
+      });
+
+      it('should allow keeping same name (no duplicate)', () => {
+        const original = store.heroes()[0];
+        const copy = new Hero(original.name);
+        copy.id = original.id;
+        store.updateHero(copy);
+        expect(store.errorCode()).toBeNull();
+        expect(store.errorMessage()).toBeNull();
       });
     });
 
@@ -192,6 +216,13 @@ describe('HeroStore', () => {
     });
 
     describe('findByName method', () => {
+
+      it('should find heroes by name', () => {
+        const hero = store.heroes()[0];
+        store.findByName(hero.name);
+        expect(store.filteredHeroes()).toContain(hero);
+      });
+
       it('should set search term', () => {
         store.findByName('man');
 
@@ -201,7 +232,7 @@ describe('HeroStore', () => {
 
       it('should clear search term when empty string provided', () => {
         store.findByName('');
-
+        expect(heroHttpService.findByName).toHaveBeenCalledWith('');
         expect(store.searchTerm()).toBe('');
       });
     });
@@ -223,8 +254,8 @@ describe('HeroStore', () => {
     });
 
     it('should set idle state', () => {
+      store.startLoading();
       store.setIdle();
-
       expect(store.isLoading()).toBe(false);
       expect(store.errorMessage()).toBeNull();
       expect(store.errorCode()).toBeNull();
@@ -260,6 +291,5 @@ describe('HeroStore', () => {
       expect(store.errorMessage()).toBeNull();
       expect(store.errorCode()).toBeNull();
     });
-
   });
 });
