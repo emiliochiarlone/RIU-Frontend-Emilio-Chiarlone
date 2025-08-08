@@ -1,42 +1,46 @@
 # RIU-Frontend-Emilio-Chiarlone
-Challenge Técnico para la posición Angular SR solicitada por RIU.
+Technical challenge for the Angular SR position requested by RIU.
 
-## Descripción
-SPA desarrollada en Angular 19 (última versión LTS) que permite realizar un CRUD completo sobre una lista de superhéroes, incluyendo búsqueda por nombre, edición, eliminación, y paginación. 
-Sin backend para enviar/recibir datos, todo se guarda en memoria a través de HeroesService.
-Son prioridad los altos estándares de calidad de código en su estructura y testing siguiendo las mejores prácticas que conozco y he utilizado. 
+## Description
+SPA developed in Angular 19 (latest LTS version) that allows complete CRUD on a list of superheroes, including search by name, editing, deletion, and pagination. 
+No backend to send/receive data, everything is stored in memory through HeroesService.
+High code quality standards in its structure and testing are a priority, following the best practices I know and have used. 
 
-## Tecnologias utilizadas
-1. Angular 19 - Framework frontend
-2. TypeScript - Lenguaje
+## Technologies used
+1. Angular 19 - Frontend framework
+2. TypeScript - Language
 3. Angular Material - UI Components
 4. Jasmine / Karma - Unit testing
 5. Docker - Container
-6. Nginx - Servidor web
+6. Nginx - Web server
 7. [NgRx SignalStore](https://ngrx.io/guide/signals/signal-store) - State management
 
-## Guía de instalación del proyecto
+## Project installation guide
 1. git clone https://github.com/emiliochiarlone/RIU-Frontend-Emilio-Chiarlone.git
 2. cd RIU-Frontend-Emilio-Chiarlone
 3. cd superhero-app
-3. npm install -g @angular/cli (en caso de no tener instalado Angular)
+3. npm install -g @angular/cli (if Angular is not installed)
 4. npm install
 5. ng serve
 
 ## Docker - multi-stage build (Nginx)
-**Requisitos:** Docker Desktop instalado y ejecutándose.
+**Requirements:** Docker Desktop installed and running.
 1. npm run docker:build
 2. npm run docker:run
 
-## Otros comandos útiles
-1. Tests unitarios: ng test
-2. Build: ng build (resultado en /dist)
+## Other useful commands
+1. Unit tests: ng test
+2. Build: ng build (result in /dist)
 
-## Notas del desarrollador
-1. Hay métodos y utilidades que en un proyecto real deben estar en un servicio/pipe aparte pero por razones de tiempo y complejidad de la app fue evitado (por ejemplo, mensajes snackbar encapsulado en MessageService, capitalizeFirstLetter en pipe/servicio de utilidad, gestión de localstorage encapsulado en servicio, entre otros).
-2. SCSS Mobile First anidado y ordenado alfabéticamente.
-3. Las solicitudes HTTP están llamando a una API mock para que el interceptor las reciba y así gestionar el spinner de carga.
 
+## Developer notes
+1. There are methods and utilities that in a real project should be in a separate service/pipe, but for reasons of time and complexity of the app, this was avoided (for example, snackbar messages encapsulated in MessageService, capitalizeFirstLetter in pipe/utility service, localstorage management encapsulated in service, among others).
+2. SCSS Mobile First nested and sorted alphabetically.
+3. HTTP requests are calling a mock API so that the interceptor can receive them and manage the loading spinner.
+
+
+**Developed by:** Emilio Chiarlone  
+**LinkedIn:** [Emilio Chiarlone](https://www.linkedin.com/in/emilio-chiarlone-7ba74a123)
 
 **Desarrollado por:** Emilio Chiarlone  
 **LinkedIn:** [Emilio Chiarlone](https://www.linkedin.com/in/emilio-chiarlone-7ba74a123)
