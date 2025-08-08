@@ -32,7 +32,7 @@ const initialState: HeroState = {
  * The store initializes by loading mock heroes using onInit Hook).
  * Store also uses MessageService to show messages errors automatically.
  * IMPORTANT: The HeroHttpMockService responses are completely unused by this store.
- * 
+ *
  * @structure
  * - **withState**: Store setup and initial state validation
  * - **withComputed**: Reactive values and getters
@@ -152,6 +152,10 @@ export const HeroStore = signalStore(
             startLoading();
           }),
           switchMap((heroName) => {
+            if (!heroName || heroName.trim() === '') {
+              setError({ message: 'El nombre del héroe es inválido', code: ErrorCodes.INVALID_NAME });
+              return EMPTY;
+            }
             if (store.nameAlreadyExists()(heroName)) {
               setDuplicate();
               return EMPTY;

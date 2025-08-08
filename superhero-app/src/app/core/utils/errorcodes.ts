@@ -2,6 +2,7 @@ export enum ErrorCodes {
   DUPLICATE_ID = 'DUPLICATE_ID',
   DUPLICATE_NAME = 'DUPLICATE_NAME',
   HERO_NOT_FOUND = 'HERO_NOT_FOUND',
+  INVALID_NAME = 'INVALID_NAME'
 }
 
 export interface HeroError {

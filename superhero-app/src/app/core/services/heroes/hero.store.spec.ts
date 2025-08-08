@@ -158,7 +158,7 @@ describe('HeroStore', () => {
         const before = store.heroes().length;
         store.createHero('   ');
         expect(store.heroes().length).toBe(before);
-        expect(store.errorCode()).toBeNull();
+        expect(store.errorCode()).toBe(ErrorCodes.INVALID_NAME);
       });
     });
 
