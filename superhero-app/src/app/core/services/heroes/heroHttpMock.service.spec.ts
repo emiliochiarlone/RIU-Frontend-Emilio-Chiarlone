@@ -174,32 +174,4 @@ xdescribe('HeroHttpMockService', () => {
       });
     });
   });
-
-  describe('utility methods', () => {
-    //Example tests for utility methods
-    // it('should check hero Id exists', () => {
-    //   service.create('New hero').subscribe((hero: Hero) => {
-    //     const idExists = service.idAlreadyExists(hero.id);
-    //     expect(idExists).toBeTrue();
-    //   });
-    // });
-
-    // it('should identify non existing Id', () => {
-    //   const result = service.idAlreadyExists(999);
-    //   expect(result).toBe(false);
-    // });
-
-    // it('should check if hero name exists', () => {
-    //   const newHeroName = 'Unique Hero';
-    //   service.create(newHeroName).subscribe();
-
-    //   const exists = service.nameAlreadyExists(newHeroName);
-    //   expect(exists).toBeTrue();
-    // });
-
-    // it('should identify non existing name', () => {
-    //   const result = service.nameAlreadyExists('Non existing hero');
-    //   expect(result).toBe(false);
-    // });
-  });
 });
