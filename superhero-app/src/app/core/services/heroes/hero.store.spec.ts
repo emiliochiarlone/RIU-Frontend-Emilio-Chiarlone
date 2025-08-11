@@ -195,6 +195,13 @@ describe('HeroStore', () => {
         expect(store.errorCode()).toBeNull();
         expect(store.errorMessage()).toBeNull();
       });
+
+      it('should set not found error when updating non existing hero', () => {
+        const nonExistent = new Hero('NewHero');
+        nonExistent.id = 0;
+        store.updateHero(nonExistent);
+        expect(store.errorCode()).toBe(ErrorCodes.HERO_NOT_FOUND);
+      });
     });
 
     describe('deleteHero method', () => {
@@ -291,35 +298,39 @@ describe('HeroStore', () => {
   });
 
   describe('Computed edge Cases', () => {
-  it('shouild handle nameAlreadyExists with empty string', () => {
-    expect(store.nameAlreadyExists()('')).toBe(false);
-  });
+    it('shouild handle nameAlreadyExists with empty string', () => {
+      expect(store.nameAlreadyExists()('')).toBe(false);
+    });
 
-  it('should handle nameAlreadyExists with distinct case', () => {
-    const heroName = store.heroes()[0].name;
-    expect(store.nameAlreadyExists()(heroName.toUpperCase())).toBe(true);
-    expect(store.nameAlreadyExists()(heroName.toLowerCase())).toBe(true);
-  });
+    it('should handle nameAlreadyExists with distinct case', () => {
+      const heroName = store.heroes()[0].name;
+      expect(store.nameAlreadyExists()(heroName.toUpperCase())).toBe(true);
+      expect(store.nameAlreadyExists()(heroName.toLowerCase())).toBe(true);
+    });
 
-  it('should exclude current heroId in nameAlreadyExists check', () => {
-    const hero = store.heroes()[0];
-    expect(store.nameAlreadyExists()(hero.name, hero.id)).toBe(false);
-  });
+    it('should exclude current heroId in nameAlreadyExists check', () => {
+      const hero = store.heroes()[0];
+      expect(store.nameAlreadyExists()(hero.name, hero.id)).toBe(false);
+    });
 
-  it('should return full array when no search term in filteredheroes', () => {
-    store.findByName('');
-    expect(store.filteredHeroes()).toEqual(store.heroes());
-  });
+    it('should return full array when no search term in filteredheroes', () => {
+      store.findByName('');
+      expect(store.filteredHeroes()).toEqual(store.heroes());
+    });
 
-  it('should filter case insensitive in filteredHeroes', () => {
-    const heroName = store.heroes()[0].name.toLowerCase();
-    store.findByName(heroName.substring(0, 3));
+    it('should filter case insensitive in filteredHeroes', () => {
+      const heroName = store.heroes()[0].name.toLowerCase();
+      store.findByName(heroName.substring(0, 3));
 
-    const filtered = store.filteredHeroes();
-    expect(filtered.length).toBeGreaterThan(0);
-    expect(filtered.some(h => h.name.toLowerCase().includes(heroName.substring(0, 3)))).toBe(true);
+      const filtered = store.filteredHeroes();
+      expect(filtered.length).toBeGreaterThan(0);
+      expect(
+        filtered.some((h) =>
+          h.name.toLowerCase().includes(heroName.substring(0, 3))
+        )
+      ).toBe(true);
+    });
   });
-});
 
   describe('Loading state', () => {
     it('should set loading when starting operations', () => {
@@ -340,7 +351,6 @@ describe('HeroStore', () => {
   });
 
   describe('validation helpers', () => {
-
     it('should detect duplicate names with whitespace variations', () => {
       const heroName = store.heroes()[0].name;
       expect(store.nameAlreadyExists()(`  ${heroName}  `)).toBe(true);
