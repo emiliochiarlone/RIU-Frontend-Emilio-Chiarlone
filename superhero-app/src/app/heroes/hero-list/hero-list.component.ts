@@ -116,6 +116,7 @@ export class HeroListComponent {
     if (!this.heroDataSource.paginator) {
       this.heroDataSource.paginator = this.paginator;
     }
+    this.searchControl.setValue(this.heroStore.searchTerm() || '');
   }
 
   onEditClick(heroId: number): void {
