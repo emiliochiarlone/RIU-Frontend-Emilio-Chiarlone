@@ -55,10 +55,12 @@ export class HeroListComponent {
   heroCount = this.heroStore.heroCount;
   errorMessage = this.heroStore.errorMessage;
   errorCode = this.heroStore.errorCode;
+  searchTerm = this.heroStore.searchTerm;
 
   searchControl: FormControl<string | null> = new FormControl<string>('');
   subscriptions: Subscription[] = [];
   showSearchSpinner = signal<boolean>(false);
+
   globalLoading = this.loadingService.isLoading;
 
 
@@ -91,6 +93,7 @@ export class HeroListComponent {
           })
         ).subscribe()
     );
+    this.searchControl.setValue(this.searchTerm() || '');
   }
 
   ngAfterViewInit(): void {
@@ -116,7 +119,6 @@ export class HeroListComponent {
     if (!this.heroDataSource.paginator) {
       this.heroDataSource.paginator = this.paginator;
     }
-    this.searchControl.setValue(this.heroStore.searchTerm() || '');
   }
 
   onEditClick(heroId: number): void {
