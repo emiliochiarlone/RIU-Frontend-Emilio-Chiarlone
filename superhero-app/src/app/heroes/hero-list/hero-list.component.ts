@@ -18,15 +18,13 @@ import {
   debounceTime,
   delay,
   distinctUntilChanged,
-  finalize,
   of,
   Subscription,
   switchMap,
   tap,
 } from 'rxjs';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { HeroStore } from '@core/services/heroes/hero.store';
 import { LoadingService } from '@core/services/loading.service';
 import { DialogService } from '@core/services/dialog.service';

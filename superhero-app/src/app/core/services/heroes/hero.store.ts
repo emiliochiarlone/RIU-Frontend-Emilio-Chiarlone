@@ -11,7 +11,7 @@ import { Hero } from '@core/models/hero.model';
 import { HeroHttpMockService } from './heroHttpMock.service';
 import { HeroState } from './hero.state';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { EMPTY, pipe, switchMap, tap, of } from 'rxjs';
+import { EMPTY, pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { ErrorCodes, HeroError } from '@core/utils/errorcodes';
 import { MessageService } from '../message.service';

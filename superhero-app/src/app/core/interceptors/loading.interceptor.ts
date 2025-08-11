@@ -4,9 +4,8 @@ import {
   HttpRequest,
   HttpHandler,
   HttpEvent,
-  HttpResponse,
 } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { delay, finalize } from 'rxjs/operators';
 import { LoadingService } from '../services/loading.service';
 
