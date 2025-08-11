@@ -57,7 +57,7 @@ export class HeroListComponent {
   errorCode = this.heroStore.errorCode;
   searchTerm = this.heroStore.searchTerm;
 
-  searchControl: FormControl<string | null> = new FormControl<string>('');
+  searchControl: FormControl<string | null> = new FormControl<string>(this.searchTerm());
   subscriptions: Subscription[] = [];
   showSearchSpinner = signal<boolean>(false);
 
@@ -93,7 +93,6 @@ export class HeroListComponent {
           })
         ).subscribe()
     );
-    this.searchControl.setValue(this.searchTerm() || '');
   }
 
   ngAfterViewInit(): void {
