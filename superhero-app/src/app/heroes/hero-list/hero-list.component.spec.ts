@@ -185,9 +185,14 @@ describe('HeroListComponent', () => {
     expect(component.messageService.showMessage).not.toHaveBeenCalled();
   });
 
-  it('ngOnDestroy sin subscriptions no rompe', () => {
+  it('ngOnDestroy with no subscriptions does not break', () => {
     component.subscriptions = [];
     expect(() => component.ngOnDestroy()).not.toThrow();
   });
+
+  it('executeSearchByName with null calls findbyname with empty string', () => {
+  component.executeSearchByName(null);
+  expect(heroStoreSpy.findByName).toHaveBeenCalledWith('');
+});
 
 });

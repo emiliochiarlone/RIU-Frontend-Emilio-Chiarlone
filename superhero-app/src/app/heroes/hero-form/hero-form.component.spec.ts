@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 
 import { HeroFormComponent } from './hero-form.component';
 import { Hero } from '@core/models/hero.model';
@@ -125,7 +125,8 @@ describe('HeroFormComponent', () => {
     dialogResult$.complete();
 
     expect(heroStoreSpy.updateHero).toHaveBeenCalled();
-    const passedHero = heroStoreSpy.updateHero.calls.mostRecent().args[0] as Hero;
+    const passedHero = heroStoreSpy.updateHero.calls.mostRecent()
+      .args[0] as Hero;
     expect(passedHero.id).toBe(9);
     expect(passedHero.name).toBe('Updated Name');
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/heroes']);
@@ -136,4 +137,51 @@ describe('HeroFormComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/heroes']);
   });
 
+  it('should not submit in edit mode if invalid', () => {
+    component.isCreationMode = false;
+    component.heroForm.get('name')?.setValue('');
+    component.onSubmit();
+    expect(heroStoreSpy.updateHero).not.toHaveBeenCalled();
+  });
+
+  it('should not create hero if dialog is cancelled', () => {
+    component.heroForm.get('name')?.setValue('New Hero');
+    component.isCreationMode = true;
+    dialogServiceSpy.openDialog.and.returnValue({
+      afterClosed: () => of(false),
+    } as any);
+
+    component.onSubmit();
+    expect(heroStoreSpy.createHero).not.toHaveBeenCalled();
+    expect(routerSpy.navigate).not.toHaveBeenCalledWith(['/heroes']);
+  });
+
+  it('should not update hero if dialog is cancelled', () => {
+    const existing = new Hero('Original');
+    existing.id = 9;
+    component.hero = existing;
+    component.isCreationMode = false;
+    component.heroForm.get('name')?.setValue('Updated Name');
+    dialogServiceSpy.openDialog.and.returnValue({
+      afterClosed: () => of(false),
+    } as any);
+
+    component.onSubmit();
+    expect(heroStoreSpy.updateHero).not.toHaveBeenCalled();
+    expect(routerSpy.navigate).not.toHaveBeenCalledWith(['/heroes']);
+  });
+
+  it('should set empty hero if id does not exist', () => {
+    heroStoreSpy.getHeroById.and.returnValue(() => null);
+    component.loadHero(0);
+    expect(component.hero.name).toBe('');
+  });
+
+  it('should capitalize words correctly', () => {
+    expect(component['capitalizeWords']('batman superman')).toBe(
+      'Batman Superman'
+    );
+    expect(component['capitalizeWords']('')).toBe('');
+    expect(component['capitalizeWords'](null as any)).toBe('');
+  });
 });
