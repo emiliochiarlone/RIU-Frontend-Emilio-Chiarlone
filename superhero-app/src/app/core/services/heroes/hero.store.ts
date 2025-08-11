@@ -183,6 +183,10 @@ export const HeroStore = signalStore(
               setDuplicate();
               return EMPTY;
             }
+            if (!store.idAlreadyExists()(hero.id)) {
+              setNotFound();
+              return EMPTY;
+            }
             return heroService.update(hero).pipe(
               tapResponse({
                 next: (updatedHero) => {
