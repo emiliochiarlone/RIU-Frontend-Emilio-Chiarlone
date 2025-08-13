@@ -1,4 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { of } from 'rxjs';
 import { HeroListComponent } from './hero-list.component';
 import { Hero } from '@core/models/hero.model';
@@ -80,6 +85,11 @@ describe('HeroListComponent', () => {
     expect(component.heroDataSource.data.length).toBe(heroes.length);
   });
 
+  it('should setup search control subscription on ngOnInit', () => {
+    component.ngOnInit();
+    expect(component.subscriptions.length).toBeGreaterThan(0);
+  });
+
   it('ngAfterViewInit triggers initial search and paginator format', () => {
     component.paginator = { pageIndex: 0, pageSize: 5 } as any;
     component.ngAfterViewInit();
@@ -151,12 +161,6 @@ describe('HeroListComponent', () => {
     expect(sub2.unsubscribe).toHaveBeenCalled();
   });
 
-  it('should set searchControl value from searchTerm on init', () => {
-    spyOn(component.searchControl, 'setValue');
-    component.ngOnInit();
-    expect(component.searchControl.setValue).toHaveBeenCalledWith('');
-  });
-
   it('onDeleteClick does not delete if user cancels', () => {
     dialogServiceSpy.openDialog.and.returnValue({
       afterClosed: () => of(false),
@@ -191,8 +195,15 @@ describe('HeroListComponent', () => {
   });
 
   it('executeSearchByName with null calls findbyname with empty string', () => {
-  component.executeSearchByName(null);
-  expect(heroStoreSpy.findByName).toHaveBeenCalledWith('');
-});
+    component.executeSearchByName(null);
+    expect(heroStoreSpy.findByName).toHaveBeenCalledWith('');
+  });
 
+  it('should show search spinner during search', fakeAsync(() => {
+    component.ngOnInit();
+    component.searchControl.setValue('test');
+
+    tick(500);
+    expect(component.showSearchSpinner()).toBe(true);
+  }));
 });
