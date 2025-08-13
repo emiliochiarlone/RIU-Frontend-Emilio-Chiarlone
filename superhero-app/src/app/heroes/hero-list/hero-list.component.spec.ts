@@ -12,7 +12,6 @@ import { PaginatorFormatterService } from '@core/services/paginator-formatter.se
 import { DialogService } from '@core/services/dialog.service';
 import { LoadingService } from '@core/services/loading.service';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
-import { signal } from '@angular/core';
 
 /**
  * @description Unit tests for the HeroListComponent
