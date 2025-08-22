@@ -2,6 +2,16 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.15.
 
+## Arquitectura de la Aplicación
+
+![Arquitectura de la Aplicación](../architecture.png)
+
+La aplicación implementa una arquitectura moderna basada en:
+- **NgRx SignalStore** para la gestión del estado
+- **Servicios HTTP mock** para simular operaciones de backend
+- **Interceptores** para manejo global de estados de carga
+- **Componentes standalone** de Angular 17
+
 ## Development server
 
 To start a local development server, run:
