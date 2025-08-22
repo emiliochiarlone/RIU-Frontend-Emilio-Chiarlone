@@ -6,6 +6,9 @@ SPA developed in Angular 19 (latest LTS version) that allows complete CRUD on a 
 No backend to send/receive data, everything is stored in memory through HeroesService.
 High code quality standards in its structure and testing are a priority, following the best practices I know and have used. 
 
+## Architecture
+![Arquitectura de la Aplicación](./superhero-app/architecture.png)
+
 ## Technologies used
 1. Angular 19 - Frontend framework
 2. TypeScript - Language

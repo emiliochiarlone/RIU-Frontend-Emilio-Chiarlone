@@ -4,7 +4,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Arquitectura de la Aplicación
 
-![Arquitectura de la Aplicación](../architecture.png)
+![Arquitectura de la Aplicación](./architecture.png)
 
 La aplicación implementa una arquitectura moderna basada en:
 - **NgRx SignalStore** para la gestión del estado
